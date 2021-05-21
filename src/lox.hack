@@ -96,5 +96,11 @@ class Token {
 }
 
 class Object {
-
+    private mixed $value;
+    public function __construct(mixed $val) {
+        $this->value = $val;
+    }
+    public function value(): mixed {
+        return $this->value;
+    }
 }

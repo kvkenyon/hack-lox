@@ -69,10 +69,55 @@ class Scanner {
         case '>':
             $this->addToken($this->match('=') ? TokenType::GREATER_EQUAL: TokenType::GREATER);
             break;
+        case '/':
+            if ($this->match('/')) {
+                while ($this->peek() != '\n' && !$this->isAtEnd()) {
+                    $this->advance();
+                }
+            } else {
+                $this->addToken(TokenType::SLASH);
+            }
+            break;
+        case ' ':
+        case '\r':
+        case '\t':
+            break;
+        case '\n':
+            $this->line++;
+            break;
+        case '"':
+            $this->string();
+            break;
         default:
             Lox::error($this->line, 'Unexpected character.\n');
             break;
         }
+    }
+
+    private function string(): void {
+        while ($this->peek() != '"' && !$this->isAtEnd()) {
+            if ($this->peek() == '\n') {
+                $this->line++;
+            }
+            $this->advance();
+        } 
+
+        if ($this->isAtEnd()) {
+            Lox::error($this->line, "Unterminated string.");
+            return;
+        }
+
+        $this->advance();
+
+        $value = Str\slice($this->source, $this->start + 1, $this->lexemeLength() - 1);
+        $this->addTokenLiteral(TokenType::STRING, new Object($value)); 
+    }
+
+    private function peek(): string {
+        if ($this->isAtEnd()) {
+            return '\0';
+        }
+        return $this->source[$this->current];
     }
 
     private function advance(): string {
@@ -102,8 +147,8 @@ class Scanner {
     private function isAtEnd(): bool {
         return $this->current >= Str\length($this->source);
     }
-
+    
     private function lexemeLength(): int {
-        return $this->current - $this->start + 1;
+        return $this->current - $this->start;
     }
 }
