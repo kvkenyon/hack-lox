@@ -1,0 +1,11 @@
+{
+    "require": {
+        "hhvm/hhvm-autoload": "^3.2",
+        "hhvm/hsl": "^4.108"
+    },
+    "require-dev": {
+        "hhvm/hhast": "^4.103",
+        "hhvm/hacktest": "^2.2",
+        "facebook/fbexpect": "^2.7"
+    }
+}

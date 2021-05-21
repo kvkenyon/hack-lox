@@ -1,0 +1,5 @@
+{
+    "roots": [ "bin/", "src/", "tests/" ],
+    "builtinLinters": "all"
+}
+  
