@@ -88,8 +88,20 @@ class Scanner {
         case '"':
             $this->string();
             break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            $this->number();
+            break;
         default:
-            Lox::error($this->line, 'Unexpected character.\n');
+            Lox::error($this->line, 'Unexpected character in switch.');
             break;
         }
     }
@@ -112,12 +124,34 @@ class Scanner {
         $value = Str\slice($this->source, $this->start + 1, $this->lexemeLength() - 1);
         $this->addTokenLiteral(TokenType::STRING, new Object($value)); 
     }
+    
+    private function number(): void {
+        while ($this->isDigit($this->peek())) { $this->advance(); }
+
+        if ($this->peek() == '.' && $this->isDigit($this->peekNext())) {
+            # consume .             
+            $this->advance();
+        }
+
+        while ($this->isDigit($this->peek())) { $this->advance(); }
+
+        $value = (float) Str\slice($this->source, $this->start, $this->lexemeLength());
+        $this->addTokenLiteral(TokenType::NUMBER, new Object($value));
+    }
 
     private function peek(): string {
         if ($this->isAtEnd()) {
             return '\0';
         }
         return $this->source[$this->current];
+    }
+
+    private function peekNext(): string {
+        $len = Str\length($this->source);
+        if ($this->current + 1 >= $len) {
+            return '\0';
+        }
+        return $this->source[$this->current + 1];
     }
 
     private function advance(): string {
@@ -150,5 +184,12 @@ class Scanner {
     
     private function lexemeLength(): int {
         return $this->current - $this->start;
+    }
+
+    private function isDigit(string $c): bool {
+        if ($c == '0') { 
+            return true; 
+        }
+        return Str\to_int($c) != NULL;
     }
 }

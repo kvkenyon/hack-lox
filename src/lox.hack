@@ -60,7 +60,7 @@ class Lox {
         $scanner = new Scanner($source);
         $tokens = $scanner->scanTokens();
         foreach ($tokens as $token) {
-            \printf("%s\n", $token->lexeme());
+            \printf("%s \n", $token->lexeme());
         }
         return 0;
     }
@@ -69,7 +69,7 @@ class Lox {
     }
 
     private static function report(int $line, string $where, string $message): void {
-        \printf('[line %d] Error%s: %s', $line, $where, $message);
+        \printf("[line %d] Error%s: %s\n", $line, $where, $message);
     }
 }
 
