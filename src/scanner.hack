@@ -93,6 +93,8 @@ class Scanner {
                 while ($this->peek() != '\n' && !$this->isAtEnd()) {
                     $this->advance();
                 }
+            } else if($this->match('*')) {
+                $this->blockComment();
             } else {
                 $this->addToken(TokenType::SLASH);
             }
@@ -172,6 +174,26 @@ class Scanner {
             $identifier = Scanner::$keywords[$value];
         }
         $this->addTokenLiteral($identifier, new Object($value));
+    }
+
+    private function blockComment(): void {
+        while (true) {
+            if ($this->peek() == '*' && $this->peekNext() == '/') {
+                /* Consume terminating */
+                $this->advance();
+                $this->advance();
+                break;
+            } else if ($this->isAtEnd()) {
+                Lox::error($this->line, "Incomplete block comment.");
+                break;
+            }
+
+            if ($this->peek() == '\n') {
+                $this->line++;
+            }
+
+            $this->advance();
+        }
     }
 
     private function peek(): string {
