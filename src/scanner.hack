@@ -140,7 +140,7 @@ class Scanner {
         } 
 
         if ($this->isAtEnd()) {
-            Lox::error($this->line, "Unterminated string.");
+            Lox::error($this->line, 'Unterminated string.');
             return;
         }
 
@@ -184,7 +184,7 @@ class Scanner {
                 $this->advance();
                 break;
             } else if ($this->isAtEnd()) {
-                Lox::error($this->line, "Incomplete block comment.");
+                Lox::error($this->line, 'Incomplete block comment.');
                 break;
             }
 

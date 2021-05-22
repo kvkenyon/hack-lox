@@ -14,7 +14,7 @@ async function main(): Awaitable<void> {
     if ($len < 1) {
         \printf("Usage: lox [script]\n");
         exit(64);
-    } else if ($len == 2) {
+    } else if ($len === 2) {
         await Lox::runFile((string) $argv[1]);
     } else {
         await Lox::runPrompt();
@@ -30,7 +30,7 @@ class Lox {
         for(;;) {
             \printf('> ');
             $line = await $_reader->readLineAsync();
-            if ($line == NULL) break;
+            if ($line === NULL) break;
             Lox::run($line);
             Lox::$had_error = false;
         }
@@ -49,7 +49,7 @@ class Lox {
         } catch (\Exception $ex) {
             echo $ex->getMessage() . "\n";
         } finally {
-            if ($handle != NULL) {
+            if ($handle !== NULL) {
                 echo "Closing file handle.\n";
                 $handle->close();
             }
