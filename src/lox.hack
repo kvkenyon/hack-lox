@@ -4,7 +4,7 @@ namespace Lox;
 use namespace HH\Lib\{C, File, IO};
 
 <<__EntryPoint>>
-async function main(): Awaitable<void> {
+async function main_async(): Awaitable<void> {
     require_once(__DIR__.'/../vendor/autoload.hack');
     \Facebook\AutoloadMap\initialize();
     $argv = vec(\HH\global_get('argv') as Container<_>);
@@ -15,28 +15,28 @@ async function main(): Awaitable<void> {
         \printf("Usage: lox [script]\n");
         exit(64);
     } else if ($len === 2) {
-        await Lox::runFile((string) $argv[1]);
+        await Lox::runFileAsync((string) $argv[1]);
     } else {
-        await Lox::runPrompt();
+        await Lox::runPromptAsync();
     }
 }
 
 class Lox {
     static bool $had_error = false;
 
-    public static async function runPrompt(): Awaitable<void> {
+    public static async function runPromptAsync(): Awaitable<void> {
         $_in = IO\request_input();
         $_reader = new IO\BufferedReader($_in);
         for(;;) {
             \printf('> ');
             $line = await $_reader->readLineAsync();
-            if ($line === NULL) break;
+            if ($line === NULL) { break; }
             Lox::run($line);
             Lox::$had_error = false;
         }
     }
 
-    public static async function runFile(string $filename): Awaitable<void> {
+    public static async function runFileAsync(string $filename): Awaitable<void> {
         \printf("Running %s\n", $filename);
         $handle = NULL;
         try {

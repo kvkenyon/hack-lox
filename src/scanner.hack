@@ -1,6 +1,5 @@
 namespace Lox;
-use namespace HH\Lib\{Str, C};
-
+use namespace HH\Lib\{C, Str};
 
 class Scanner {
     private string $source;
@@ -90,7 +89,7 @@ class Scanner {
             break;
         case '/':
             if ($this->match('/')) {
-                while ($this->peek() != '\n' && !$this->isAtEnd()) {
+                while ($this->peek() !== '\n' && !$this->isAtEnd()) {
                     $this->advance();
                 }
             } else if($this->match('*')) {
@@ -132,12 +131,12 @@ class Scanner {
     }
 
     private function string(): void {
-        while ($this->peek() != '"' && !$this->isAtEnd()) {
-            if ($this->peek() == '\n') {
+        while ($this->peek() !== '"' && !$this->isAtEnd()) {
+            if ($this->peek() === '\n') {
                 $this->line++;
             }
             $this->advance();
-        } 
+        }
 
         if ($this->isAtEnd()) {
             Lox::error($this->line, 'Unterminated string.');
@@ -147,13 +146,13 @@ class Scanner {
         $this->advance();
 
         $value = Str\slice($this->source, $this->start + 1, $this->lexemeLength() - 1);
-        $this->addTokenLiteral(TokenType::STRING, new Object($value)); 
+        $this->addTokenLiteral(TokenType::STRING, new Object($value));
     }
-    
+
     private function number(): void {
         while ($this->isDigit($this->peek())) { $this->advance(); }
 
-        if ($this->peek() == '.' && $this->isDigit($this->peekNext())) {
+        if ($this->peek() === '.' && $this->isDigit($this->peekNext())) {
             $this->advance();
         }
 
@@ -178,7 +177,7 @@ class Scanner {
 
     private function blockComment(): void {
         while (true) {
-            if ($this->peek() == '*' && $this->peekNext() == '/') {
+            if ($this->peek() === '*' && $this->peekNext() === '/') {
                 /* Consume terminating */
                 $this->advance();
                 $this->advance();
@@ -188,7 +187,7 @@ class Scanner {
                 break;
             }
 
-            if ($this->peek() == '\n') {
+            if ($this->peek() === '\n') {
                 $this->line++;
             }
 
@@ -220,7 +219,7 @@ class Scanner {
     private function match(string $expected): bool {
         if ($this->isAtEnd()) { return false; }
         if ($this->source[$this->current] !== $expected) {
-           return false; 
+           return false;
         }
         $this->current++;
         return true;
@@ -244,16 +243,16 @@ class Scanner {
     }
 
     private function isDigit(string $c): bool {
-        if ($c == '0') { 
-            return true; 
+        if ($c === '0') {
+            return true;
         }
-        return Str\to_int($c) != NULL;
+        return Str\to_int($c) !== NULL;
     }
 
     private function isAlpha(string $c): bool {
         return ($c >= 'a' && $c <= 'z') ||
                 ($c >= 'A' && $c <= 'Z') ||
-                $c == '_';
+                $c === '_';
     }
 
     private function isAlphaNum(string $c): bool {

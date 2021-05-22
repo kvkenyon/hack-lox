@@ -23,5 +23,4 @@ async function define_ast_async(
     Vector<string> $_types,
 ): Awaitable<void> {
 
-
 }
