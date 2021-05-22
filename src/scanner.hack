@@ -1,5 +1,5 @@
 namespace Lox;
-use namespace HH\Lib\{Str};
+use namespace HH\Lib\{Str, C};
 
 
 class Scanner {
@@ -9,6 +9,25 @@ class Scanner {
     private int $line = 1;
 
     private Vector<Token> $tokens;
+
+    private static dict<string, TokenType> $keywords = dict[
+        'and' => TokenType::AND,
+        'class' => TokenType::CLAZZ,
+        'else' => TokenType::ELSE,
+        'false' => TokenType::FALSE,
+        'for' => TokenType::FOR,
+        'fun' => TokenType::FUN,
+        'if' => TokenType::IF,
+        'nil' => TokenType::NIL,
+        'or' => TokenType::OR,
+        'print' => TokenType::PRINT,
+        'return' => TokenType::RETURN,
+        'super' => TokenType::SUPER,
+        'this' => TokenType::THIS,
+        'true' => TokenType::TRUE,
+        'var' => TokenType::VAR,
+        'while' => TokenType::WHILE
+    ];
 
     public function __construct(string $source) {
         $this->source = $source;
@@ -101,7 +120,11 @@ class Scanner {
             $this->number();
             break;
         default:
-            Lox::error($this->line, 'Unexpected character in switch.');
+            if ($this->isAlpha($c)) {
+                $this->identifier();
+            } else {
+                Lox::error($this->line, 'Unexpected character in switch.');
+            }
             break;
         }
     }
@@ -129,7 +152,6 @@ class Scanner {
         while ($this->isDigit($this->peek())) { $this->advance(); }
 
         if ($this->peek() == '.' && $this->isDigit($this->peekNext())) {
-            # consume .             
             $this->advance();
         }
 
@@ -137,6 +159,19 @@ class Scanner {
 
         $value = (float) Str\slice($this->source, $this->start, $this->lexemeLength());
         $this->addTokenLiteral(TokenType::NUMBER, new Object($value));
+    }
+
+    private function identifier(): void {
+        while ($this->isAlphaNum($this->peek())) {
+            $this->advance();
+        }
+
+        $value = (string) Str\slice($this->source, $this->start, $this->lexemeLength());
+        $identifier = TokenType::IDENTIFIER;
+        if (C\contains(Scanner::$keywords, $value)) {
+            $identifier = Scanner::$keywords[$value];
+        }
+        $this->addTokenLiteral($identifier, new Object($value));
     }
 
     private function peek(): string {
@@ -178,12 +213,12 @@ class Scanner {
         $this->tokens->add(new Token($lexeme, $type, $this->line, $literal));
     }
 
-    private function isAtEnd(): bool {
-        return $this->current >= Str\length($this->source);
-    }
-    
     private function lexemeLength(): int {
         return $this->current - $this->start;
+    }
+
+    private function isAtEnd(): bool {
+        return $this->current >= Str\length($this->source);
     }
 
     private function isDigit(string $c): bool {
@@ -191,5 +226,15 @@ class Scanner {
             return true; 
         }
         return Str\to_int($c) != NULL;
+    }
+
+    private function isAlpha(string $c): bool {
+        return ($c >= 'a' && $c <= 'z') ||
+                ($c >= 'A' && $c <= 'Z') ||
+                $c == '_';
+    }
+
+    private function isAlphaNum(string $c): bool {
+        return $this->isDigit($c) || $this->isAlpha($c);
     }
 }

@@ -10,7 +10,7 @@ async function main(): Awaitable<void> {
     $argv = vec(\HH\global_get('argv') as Container<_>);
 
     $len = C\count($argv);
-    \printf("Length of argv: %d\n", $len);
+    \printf("HACK-LOX v0.0.1\n");
     if ($len < 1) {
         \printf("Usage: lox [script]\n");
         exit(64);
