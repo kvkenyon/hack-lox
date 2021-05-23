@@ -1,6 +1,7 @@
 namespace Lox;
 
 abstract class Expr {
+    abstract public function accept<T>(Visitor<T> $visitor): T;
 }
 
 class Binary extends Expr {
@@ -12,6 +13,11 @@ class Binary extends Expr {
         $this->operator = $operator;
         $this->right = $right;
     }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitBinaryExpr($this);
+    }
 }
 
 class Grouping extends Expr {
@@ -19,12 +25,22 @@ class Grouping extends Expr {
     public function __construct(Expr $expression) {
         $this->expression = $expression;
     }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitGroupingExpr($this);
+    }
 }
 
 class Literal extends Expr {
     private Object $value;
     public function __construct(Object $value) {
         $this->value = $value;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitLiteralExpr($this);
     }
 }
 
@@ -35,4 +51,16 @@ class Unary extends Expr {
         $this->operator = $operator;
         $this->right = $right;
     }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitUnaryExpr($this);
+    }
+}
+
+interface Visitor<T> {
+    public function visitBinaryExpr(Binary $expr): T;
+    public function visitGroupingExpr(Grouping $expr): T;
+    public function visitLiteralExpr(Literal $expr): T;
+    public function visitUnaryExpr(Unary $expr): T;
 }
