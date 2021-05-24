@@ -64,7 +64,7 @@ function define_type(PrintWriter $printer,
 
     foreach ($fields as $field) {
         $field = Str\trim($field);
-        $printer->println('    private ' . $field . ';');
+        $printer->println('    public ' . $field . ';');
     }
 
     $printer->println('    public function __construct(' . $fieldVec . ') {');

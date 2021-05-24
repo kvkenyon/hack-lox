@@ -5,9 +5,9 @@ abstract class Expr {
 }
 
 class Binary extends Expr {
-    private Expr $left;
-    private Token $operator;
-    private Expr $right;
+    public Expr $left;
+    public Token $operator;
+    public Expr $right;
     public function __construct(Expr $left, Token $operator, Expr $right) {
         $this->left = $left;
         $this->operator = $operator;
@@ -21,7 +21,7 @@ class Binary extends Expr {
 }
 
 class Grouping extends Expr {
-    private Expr $expression;
+    public Expr $expression;
     public function __construct(Expr $expression) {
         $this->expression = $expression;
     }
@@ -33,7 +33,7 @@ class Grouping extends Expr {
 }
 
 class Literal extends Expr {
-    private Object $value;
+    public Object $value;
     public function __construct(Object $value) {
         $this->value = $value;
     }
@@ -45,8 +45,8 @@ class Literal extends Expr {
 }
 
 class Unary extends Expr {
-    private Token $operator;
-    private Expr $right;
+    public Token $operator;
+    public Expr $right;
     public function __construct(Token $operator, Expr $right) {
         $this->operator = $operator;
         $this->right = $right;
