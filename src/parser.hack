@@ -13,10 +13,35 @@ class Parser {
 
     public function parse(): ?Expr {
         try {
-            return $this->expression();
+            return $this->comma();
         } catch(ParseError $error) {
             return NULL;
         }
+    }
+
+    private function comma(): Expr {
+        $expr = $this->ternary();
+
+        while ($this->match(TokenType::COMMA)) {
+            $op = $this->previous();
+            $right = $this->ternary();
+            $expr = new Binary($expr, $op, $right);
+        }
+
+        return $expr;
+    }
+
+    private function ternary(): Expr {
+        $expr = $this->expression();
+
+        if ($this->match(TokenType::QUESTION)) {
+            $b = $this->ternary();
+            $this->consume(TokenType::COLON, "Expect ':' after ? ternary expression.");
+            $c = $this->ternary();
+            return new Ternary($expr, $b, $c);
+        }
+
+        return $expr;
     }
 
     private function expression(): Expr {

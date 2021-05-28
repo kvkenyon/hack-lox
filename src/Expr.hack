@@ -4,6 +4,22 @@ abstract class Expr {
     abstract public function accept<T>(Visitor<T> $visitor): T;
 }
 
+class Ternary extends Expr {
+    public Expr $a;
+    public Expr $b;
+    public Expr $c;
+    public function __construct(Expr $a, Expr $b, Expr $c) {
+        $this->a = $a;
+        $this->b = $b;
+        $this->c = $c;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitTernaryExpr($this);
+    }
+}
+
 class Binary extends Expr {
     public Expr $left;
     public Token $operator;
@@ -59,6 +75,7 @@ class Unary extends Expr {
 }
 
 interface Visitor<T> {
+    public function visitTernaryExpr(Ternary $expr): T;
     public function visitBinaryExpr(Binary $expr): T;
     public function visitGroupingExpr(Grouping $expr): T;
     public function visitLiteralExpr(Literal $expr): T;

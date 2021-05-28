@@ -77,7 +77,6 @@ class Lox {
         if ($token->type === TokenType::EOF) {
             Lox::report($token->line, ' at end', $msg);
         } else {
-
             Lox::report($token->line, " at '" . $token->lexeme . ' ('. $token->type . ') '. "'", $msg);
         }
     }

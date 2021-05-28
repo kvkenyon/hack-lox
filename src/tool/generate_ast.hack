@@ -15,6 +15,7 @@ async function main_async(): Awaitable<void> {
 
     $outputDir = (string) $argv[1];
     $types = vec<string>[
+      'Ternary  : Expr $a, Expr $b, Expr $c',
       'Binary   : Expr $left, Token $operator, Expr $right',
       'Grouping : Expr $expression',
       'Literal  : Object $value',

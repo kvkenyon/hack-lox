@@ -22,6 +22,10 @@ class AstPrinter implements Visitor<string> {
         return $this->parenthesize($expr->operator->lexeme(), $expr->right);
     }
 
+    public function visitTernaryExpr(Ternary $expr): string {
+        return $this->parenthesize('ternary', $expr->a, $expr->b, $expr->c);
+    }
+
     private function parenthesize(string $name, Expr ... $exprs):string {
         $result = '(' . $name . ' ';
 

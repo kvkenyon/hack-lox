@@ -44,4 +44,8 @@ enum TokenType: int {
     WHILE = 37;
 
     EOF = 38;
+
+    // Add for ternary
+    QUESTION = 39;
+    COLON = 40;
 }
