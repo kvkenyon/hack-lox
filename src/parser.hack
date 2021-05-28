@@ -1,5 +1,7 @@
 namespace Lox;
 
+class ParseError extends \Exception { /*...*/ }
+
 class Parser {
     private Vector<Token> $tokens;
     private int $current;
@@ -7,6 +9,14 @@ class Parser {
     public function __construct(Vector<Token> $tokens) {
         $this->tokens = $tokens;
         $this->current = 0;
+    }
+
+    public function parse(): ?Expr {
+        try {
+            return $this->expression();
+        } catch(ParseError $error) {
+            return NULL;
+        }
     }
 
     private function expression(): Expr {
@@ -82,11 +92,13 @@ class Parser {
             } else {
                 return new Literal(new Object($token->lexeme));
             }
-        } else {
+        } else if ($this->match(TokenType::LEFT_PAREN)) {
             $expr = $this->expression();
             $this->consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.");
             return new Grouping($expr);
         }
+
+        throw $this->error($this->peek(), 'Expect expression.');
     }
 
     private function consume(TokenType $type, string $msg): Token {
@@ -96,9 +108,9 @@ class Parser {
         throw $this->error($this->peek(), $msg);
     }
 
-    private function error(Token $token, string $msg): \Exception {
+    private function error(Token $token, string $msg): ParseError {
         Lox::errorParse($token, $msg);
-        return new \Exception();
+        return new ParseError();
     }
 
     private function match(TokenType ... $types): bool {

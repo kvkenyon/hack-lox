@@ -26,7 +26,7 @@ class AstPrinter implements Visitor<string> {
         $result = '(' . $name . ' ';
 
         foreach ($exprs as $expr) {
-            $result .= $expr->accept($this);
+            $result .= $expr->accept($this) . ' ';
         }
 
         $result .= ')';

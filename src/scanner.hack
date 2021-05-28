@@ -169,7 +169,7 @@ class Scanner {
 
         $value = (string) Str\slice($this->source, $this->start, $this->lexemeLength());
         $identifier = TokenType::IDENTIFIER;
-        if (C\contains(Scanner::$keywords, $value)) {
+        if (C\contains_key(Scanner::$keywords, $value)) {
             $identifier = Scanner::$keywords[$value];
         }
         $this->addTokenLiteral($identifier, new Object($value));

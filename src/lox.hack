@@ -59,8 +59,13 @@ class Lox {
     public static function run(string $source): int {
         $scanner = new Scanner($source);
         $tokens = $scanner->scanTokens();
-        foreach ($tokens as $token) {
-            \printf("%s \n", $token->lexeme());
+
+        $parser = new Parser($tokens);
+        $expr = $parser->parse();
+
+        if (Lox::$had_error) { return 66; }
+        if ($expr !== NULL) {
+            \printf("%s\n", (new AstPrinter())->print($expr));
         }
         return 0;
     }
@@ -72,7 +77,8 @@ class Lox {
         if ($token->type === TokenType::EOF) {
             Lox::report($token->line, ' at end', $msg);
         } else {
-            Lox::report($token->line, " at '" . $token->lexeme . "'", $msg);
+
+            Lox::report($token->line, " at '" . $token->lexeme . ' ('. $token->type . ') '. "'", $msg);
         }
     }
 
