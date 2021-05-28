@@ -68,6 +68,14 @@ class Lox {
         Lox::report($line, '', $message);
     }
 
+    public static function errorParse(Token $token, string $msg): void {
+        if ($token->type === TokenType::EOF) {
+            Lox::report($token->line, ' at end', $msg);
+        } else {
+            Lox::report($token->line, " at '" . $token->lexeme . "'", $msg);
+        }
+    }
+
     private static function report(int $line, string $where, string $message): void {
         \printf("[line %d] Error%s: %s\n", $line, $where, $message);
     }
