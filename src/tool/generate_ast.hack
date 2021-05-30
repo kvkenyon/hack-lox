@@ -14,14 +14,23 @@ async function main_async(): Awaitable<void> {
     }
 
     $outputDir = (string) $argv[1];
-    $types = vec<string>[
+    $typesExpr = vec<string>[
       'Ternary  : Expr $a, Expr $b, Expr $c',
       'Binary   : Expr $left, Token $operator, Expr $right',
       'Grouping : Expr $expression',
       'Literal  : Object $value',
       'Unary    : Token $operator, Expr $right'];
 
-    await define_ast_async($outputDir, 'Expr', $types);
+    await define_ast_async($outputDir, 'Expr', $typesExpr);
+
+    $typesStmt = vec<string> [
+        'Expression : Expr $expression',
+        'Show: Expr $expression'
+    ];
+
+    await define_ast_async($outputDir, 'Stmt', $typesStmt);
+
+    await define_visitors_async($outputDir, vec<string>['Expr', 'Stmt'], vec<vec<string>>[$typesExpr, $typesStmt]);
 }
 
 async function define_ast_async(
@@ -47,8 +56,6 @@ async function define_ast_async(
         define_type($printer, $_baseName, $className, $fields);
         $printer->println('');
     }
-
-    define_visitor($printer, $_baseName, $_types);
 
     $writer = File\open_write_only($path);
     await $writer->writeAllAsync($printer->value());
@@ -86,15 +93,31 @@ function define_type(PrintWriter $printer,
     $printer->println('}');
 }
 
-function define_visitor(PrintWriter $writer,
-    string $baseName, vec<string> $types): void {
-    $writer->println('interface Visitor<T> {');
+async function define_visitors_async(string $outputDir,
+        vec<string> $baseNames,
+        vec<vec<string>> $typesList): Awaitable<void>{
+    $path = $outputDir . '/Visitor.hack';
+    $_out = IO\request_output();
 
-    foreach ($types as $type) {
-        $typeName = Str\trim(Str\split($type, ':')[0]);
-        $writer->println('    public function visit' . $typeName . $baseName . '(' . $typeName . ' $' . Str\lowercase($baseName) . '): T;' );
+    $printer = new PrintWriter('');
+
+    $printer->println('namespace Lox;');
+
+    $printer->println('interface Visitor<T> {');
+
+    $i = 0;
+    foreach ($baseNames as $baseName) {
+        $types = $typesList[$i];
+        foreach ($types as $type) {
+            $typeName = Str\trim(Str\split($type, ':')[0]);
+            $printer->println('    public function visit' . $typeName . $baseName . '(' . $typeName . ' $' . Str\lowercase($baseName) . '): T;' );
+        }
+        ++$i;
     }
-    $writer->println('}');
+    $printer->println('}');
+    $writer = File\open_write_only($path);
+    await $writer->writeAllAsync($printer->value());
+    $writer->close();
 }
 
 class PrintWriter {

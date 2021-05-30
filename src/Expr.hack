@@ -73,11 +73,3 @@ class Unary extends Expr {
         return $visitor->visitUnaryExpr($this);
     }
 }
-
-interface Visitor<T> {
-    public function visitTernaryExpr(Ternary $expr): T;
-    public function visitBinaryExpr(Binary $expr): T;
-    public function visitGroupingExpr(Grouping $expr): T;
-    public function visitLiteralExpr(Literal $expr): T;
-    public function visitUnaryExpr(Unary $expr): T;
-}

@@ -26,6 +26,16 @@ class AstPrinter implements Visitor<string> {
         return $this->parenthesize('ternary', $expr->a, $expr->b, $expr->c);
     }
 
+    public function visitExpressionStmt(Stmt $expr): string {
+        $expr;
+        return '';
+    }
+
+    public function visitShowStmt(Stmt $expr): string {
+        $expr;
+        return '';
+    }
+
     private function parenthesize(string $name, Expr ... $exprs):string {
         $result = '(' . $name . ' ';
 

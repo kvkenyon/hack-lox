@@ -90,7 +90,7 @@ class Lox {
     }
 
     public static function errorRuntime(RuntimeError $error): void {
-        \printf('%s\n[Line %d]\n', $error->getMessage(), $error->token->line);
+        \printf("%s\n[Line %d]\n", $error->getMessage(), $error->token->line);
         Lox::$had_runtime_error = true;
     }
 

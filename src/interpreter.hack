@@ -17,6 +17,14 @@ class Interpreter implements Visitor<mixed> {
         }
     }
 
+    public function visitExpressionStmt(Stmt $expression):void {
+        $expression;
+    }
+
+    public function visitShowStmt(Stmt $expression): void {
+        $expression;
+    }
+
     public function visitBinaryExpr(Binary $binary): mixed {
         $left = $this->evaluate($binary->left);
         $right = $this->evaluate($binary->right);
@@ -34,6 +42,9 @@ class Interpreter implements Visitor<mixed> {
                 throw new RuntimeError($binary->operator, 'Operands must be either numbers or strings.');
             case TokenType::SLASH:
                 $this->checkNumberOperands($binary->operator, $left, $right);
+                if ((float)$right === 0.0) {
+                    throw new RuntimeError($binary->operator, 'Division by zero detected.');
+                }
                 return (float)$left / (float)$right;
             case TokenType::STAR:
                 $this->checkNumberOperands($binary->operator, $left, $right);
@@ -89,7 +100,7 @@ class Interpreter implements Visitor<mixed> {
     }
 
     public function visitGroupingExpr(Grouping $grouping): mixed {
-        return $this->evaluate($grouping->expression); 
+        return $this->evaluate($grouping->expression);
     }
 
     private function evaluate(Expr $expr): mixed {
