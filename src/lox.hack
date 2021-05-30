@@ -23,6 +23,7 @@ async function main_async(): Awaitable<void> {
 
 class Lox {
     static bool $had_error = false;
+    static bool $had_runtime_error = false;
 
     public static async function runPromptAsync(): Awaitable<void> {
         $_in = IO\request_input();
@@ -36,6 +37,10 @@ class Lox {
         }
     }
 
+    private static function getInterpreter(): Interpreter {
+        return new Interpreter();
+    }
+
     public static async function runFileAsync(string $filename): Awaitable<void> {
         \printf("Running %s\n", $filename);
         $handle = NULL;
@@ -45,6 +50,9 @@ class Lox {
             Lox::run($source);
             if (Lox::$had_error) {
                 exit(65);
+            }
+            if (Lox::$had_runtime_error) {
+                exit(70);
             }
         } catch (\Exception $ex) {
             echo $ex->getMessage() . "\n";
@@ -64,8 +72,8 @@ class Lox {
         $expr = $parser->parse();
 
         if (Lox::$had_error) { return 66; }
-        if ($expr !== NULL) {
-            \printf("%s\n", (new AstPrinter())->print($expr));
+        if ($expr !== null) {
+            Lox::getInterpreter()->interpret($expr);
         }
         return 0;
     }
@@ -79,6 +87,11 @@ class Lox {
         } else {
             Lox::report($token->line, " at '" . $token->lexeme . ' ('. $token->type . ') '. "'", $msg);
         }
+    }
+
+    public static function errorRuntime(RuntimeError $error): void {
+        \printf('%s\n[Line %d]\n', $error->getMessage(), $error->token->line);
+        Lox::$had_runtime_error = true;
     }
 
     private static function report(int $line, string $where, string $message): void {

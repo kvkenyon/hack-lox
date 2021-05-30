@@ -107,10 +107,18 @@ class Parser {
     }
 
     private function primary(): Expr {
-        if ($this->match(TokenType::NUMBER,
-            TokenType::NIL,
-            TokenType::TRUE,
-            TokenType::FALSE)) {
+        if ($this->match(TokenType::TRUE)) {
+            return new Literal(new Object(true));
+        }
+        if ($this->match(TokenType::FALSE)) {
+            return new Literal(new Object(false));
+        }
+
+        if ($this->match(TokenType::NIL)) {
+            return new Literal(new Object(NULL));
+        }
+
+        if ($this->match(TokenType::NUMBER)) {
             $token = $this->previous();
             if ($token->literal !== NULL) {
                 return new Literal($token->literal);
