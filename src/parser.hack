@@ -13,25 +13,31 @@ class Parser {
 
     public function parse(): Vector<Stmt> {
         $stmts = new Vector<Stmt>(NULL);
-        while ($this->isAtEnd()) {
-            $stmts->add($this->statement());
+        while (!$this->isAtEnd()) {
+            try {
+                $stmts->add($this->statement());
+            } catch(ParseError $error) {}
         }
         return $stmts;
     }
 
     private function statement(): Stmt {
         if ($this->match(TokenType::PRINT)) {
-            return $this->printStatement(); 
+            return $this->printStatement();
         }
-
         return $this->expressionStatement();
     }
 
     private function printStatement(): Stmt {
+        $expr = $this->comma();
+        $this->consume(TokenType::SEMICOLON, '; expected after statement.');
+        return new Show($expr);
     }
 
     private function expressionStatement(): Stmt {
-        
+        $expr = $this->comma();
+        $this->consume(TokenType::SEMICOLON, '; expected after statement.');
+        return new Expression($expr);
     }
 
     private function comma(): Expr {
@@ -133,7 +139,7 @@ class Parser {
             return new Literal(new Object(NULL));
         }
 
-        if ($this->match(TokenType::NUMBER)) {
+        if ($this->match(TokenType::NUMBER) || $this->match(TokenType::STRING)) {
             $token = $this->previous();
             if ($token->literal !== NULL) {
                 return new Literal($token->literal);

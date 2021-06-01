@@ -10,13 +10,13 @@ async function main_async(): Awaitable<void> {
     $argv = vec(\HH\global_get('argv') as Container<_>);
 
     $len = C\count($argv);
-    \printf("HACK-LOX v0.0.1\n");
     if ($len < 1) {
         \printf("Usage: lox [script]\n");
         exit(64);
     } else if ($len === 2) {
         await Lox::runFileAsync((string) $argv[1]);
     } else {
+        \printf("HACK-LOX v0.0.1\n");
         await Lox::runPromptAsync();
     }
 }
@@ -42,7 +42,6 @@ class Lox {
     }
 
     public static async function runFileAsync(string $filename): Awaitable<void> {
-        \printf("Running %s\n", $filename);
         $handle = NULL;
         try {
             $handle = File\open_read_only($filename);
@@ -58,7 +57,6 @@ class Lox {
             echo $ex->getMessage() . "\n";
         } finally {
             if ($handle !== NULL) {
-                echo "Closing file handle.\n";
                 $handle->close();
             }
         }
@@ -69,11 +67,11 @@ class Lox {
         $tokens = $scanner->scanTokens();
 
         $parser = new Parser($tokens);
-        $expr = $parser->parse();
+        $stmts = $parser->parse();
 
         if (Lox::$had_error) { return 66; }
-        if ($expr !== null) {
-            Lox::getInterpreter()->interpret($expr);
+        if ($stmts!== null) {
+            Lox::getInterpreter()->interpret($stmts);
         }
         return 0;
     }
@@ -83,9 +81,9 @@ class Lox {
 
     public static function errorParse(Token $token, string $msg): void {
         if ($token->type === TokenType::EOF) {
-            Lox::report($token->line, ' at end', $msg);
+            Lox::report($token->line, ' at end (Parser)', $msg);
         } else {
-            Lox::report($token->line, " at '" . $token->lexeme . ' ('. $token->type . ') '. "'", $msg);
+            Lox::report($token->line, " at (Parser) '" . $token->lexeme . ' ('. $token->type . ') '. "'", $msg);
         }
     }
 

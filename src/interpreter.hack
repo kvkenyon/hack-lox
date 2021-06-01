@@ -8,21 +8,23 @@ class RuntimeError extends \Exception {
 }
 
 class Interpreter implements Visitor<mixed> {
-    public function interpret(Expr $expression): void {
+    public function interpret(Vector<Stmt> $statements): void {
         try {
-            $value = $this->evaluate($expression);
-            \printf("%s\n", $this->stringify($value));
+            foreach ($statements as $stmt) {
+                $this->execute($stmt);
+            }
         } catch (RuntimeError $error) {
             Lox::errorRuntime($error);
         }
     }
 
-    public function visitExpressionStmt(Stmt $expression):void {
-        $expression;
+    public function visitExpressionStmt(Expression $expression): void {
+        $this->evaluate($expression->expression);
     }
 
-    public function visitShowStmt(Stmt $expression): void {
-        $expression;
+    public function visitShowStmt(Show $expression): void {
+        $value = $this->evaluate($expression->expression);
+        \printf("%s\n", $this->stringify($value));
     }
 
     public function visitBinaryExpr(Binary $binary): mixed {
@@ -105,6 +107,10 @@ class Interpreter implements Visitor<mixed> {
 
     private function evaluate(Expr $expr): mixed {
         return $expr->accept($this);
+    }
+
+    private function execute(Stmt $stmt): void {
+        $stmt->accept($this);
     }
 
     private function isTruthy(mixed $obj): bool {

@@ -105,10 +105,10 @@ class Scanner {
             }
             break;
         case ' ':
-        case '\r':
-        case '\t':
+        case "\r":
+        case "\t":
             break;
-        case '\n':
+        case "\n":
             $this->line++;
             break;
         case '"':
@@ -130,7 +130,7 @@ class Scanner {
             if ($this->isAlpha($c)) {
                 $this->identifier();
             } else {
-                Lox::error($this->line, 'Unexpected character in switch.');
+                Lox::error($this->line, 'Unexpected character ' . $c . ' in switch.');
             }
             break;
         }
@@ -151,7 +151,7 @@ class Scanner {
 
         $this->advance();
 
-        $value = Str\slice($this->source, $this->start + 1, $this->lexemeLength() - 1);
+        $value = Str\slice($this->source, $this->start + 1, $this->lexemeLength() - 2);
         $this->addTokenLiteral(TokenType::STRING, new Object($value));
     }
 
