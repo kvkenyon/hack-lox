@@ -11,12 +11,27 @@ class Parser {
         $this->current = 0;
     }
 
-    public function parse(): ?Expr {
-        try {
-            return $this->comma();
-        } catch(ParseError $error) {
-            return NULL;
+    public function parse(): Vector<Stmt> {
+        $stmts = new Vector<Stmt>(NULL);
+        while ($this->isAtEnd()) {
+            $stmts->add($this->statement());
         }
+        return $stmts;
+    }
+
+    private function statement(): Stmt {
+        if ($this->match(TokenType::PRINT)) {
+            return $this->printStatement(); 
+        }
+
+        return $this->expressionStatement();
+    }
+
+    private function printStatement(): Stmt {
+    }
+
+    private function expressionStatement(): Stmt {
+        
     }
 
     private function comma(): Expr {
