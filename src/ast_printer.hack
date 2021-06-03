@@ -36,6 +36,16 @@ class AstPrinter implements Visitor<string> {
         return '';
     }
 
+    public function visitVariableExpr(Variable $expr): string {
+        $expr;
+        return '';
+    }
+
+    public function visitVarDeclStmt(VarDecl $stmt): string {
+        $stmt;
+        return '';
+    }
+
     private function parenthesize(string $name, Expr ... $exprs):string {
         $result = '(' . $name . ' ';
 

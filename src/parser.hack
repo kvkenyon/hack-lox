@@ -15,10 +15,35 @@ class Parser {
         $stmts = new Vector<Stmt>(NULL);
         while (!$this->isAtEnd()) {
             try {
-                $stmts->add($this->statement());
+                $stmts->add($this->declaration());
             } catch(ParseError $error) {}
         }
         return $stmts;
+    }
+
+    private function declaration(): Stmt {
+        try  {
+            if ($this->match(TokenType::VAR)) {
+                return $this->varDecl();
+            }
+            return $this->statement();
+ 
+        } catch(ParseError $error) {
+            $this->synchronize();
+            throw $error;
+        }
+   }
+
+    private function varDecl(): Stmt {
+        $name = $this->consume(TokenType::IDENTIFIER, 'Expected variable name.');
+        
+        $init = NULL;
+        if ($this->match(TokenType::EQUAL)) {
+            $init = $this->comma();
+        }
+
+        $this->consume(TokenType::SEMICOLON, 'Expected ; after variable declaration.');
+        return new VarDecl($name, $init);
     }
 
     private function statement(): Stmt {
@@ -165,6 +190,27 @@ class Parser {
     private function error(Token $token, string $msg): ParseError {
         Lox::errorParse($token, $msg);
         return new ParseError();
+    }
+
+    private function synchronize(): void {
+        $this->advance();
+
+        while (!$this->isAtEnd()) {
+            if ($this->previous()->type === TokenType::SEMICOLON) return;
+            switch($this->peek()->type) {
+                case TokenType::CLAZZ:
+                case TokenType::FUN:
+                case TokenType::VAR:
+                case TokenType::FOR:
+                case TokenType::IF:
+                case TokenType::WHILE:
+                case TokenType::PRINT:
+                case TokenType::RETURN:
+                    return;
+                default:
+            }
+            $this->advance(); 
+        }
     }
 
     private function match(TokenType ... $types): bool {

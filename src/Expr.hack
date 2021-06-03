@@ -73,3 +73,15 @@ class Unary extends Expr {
         return $visitor->visitUnaryExpr($this);
     }
 }
+
+class Variable extends Expr {
+    public Token $name;
+    public function __construct(Token $name) {
+        $this->name = $name;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitVariableExpr($this);
+    }
+}

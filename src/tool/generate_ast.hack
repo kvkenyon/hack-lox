@@ -19,13 +19,15 @@ async function main_async(): Awaitable<void> {
       'Binary   : Expr $left, Token $operator, Expr $right',
       'Grouping : Expr $expression',
       'Literal  : Object $value',
-      'Unary    : Token $operator, Expr $right'];
+      'Unary    : Token $operator, Expr $right',
+      'Variable : Token $name'];
 
     await define_ast_async($outputDir, 'Expr', $typesExpr);
 
     $typesStmt = vec<string> [
         'Expression : Expr $expression',
-        'Show: Expr $expression'
+        'Show: Expr $expression',
+        'VarDecl: Token $name, ?Expr $initializer'
     ];
 
     await define_ast_async($outputDir, 'Stmt', $typesStmt);

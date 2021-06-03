@@ -18,6 +18,10 @@ class Interpreter implements Visitor<mixed> {
         }
     }
 
+    public function visitVarDeclStmt(VarDecl $varDecl): void {
+
+    }
+
     public function visitExpressionStmt(Expression $expression): void {
         $this->evaluate($expression->expression);
     }
@@ -25,6 +29,10 @@ class Interpreter implements Visitor<mixed> {
     public function visitShowStmt(Show $expression): void {
         $value = $this->evaluate($expression->expression);
         \printf("%s\n", $this->stringify($value));
+    }
+
+    public function visitVariableExpr(Variable $expr): mixed {
+        return $expr;
     }
 
     public function visitBinaryExpr(Binary $binary): mixed {
