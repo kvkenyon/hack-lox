@@ -10,7 +10,7 @@ class Environment {
     }
 
     public function get(Token $name): mixed {
-        if (C\contains($this->environ, $name)) {
+        if (C\contains_key($this->environ, $name->lexeme())) {
             return $this->environ[$name->lexeme()];
         }
 

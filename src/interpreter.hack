@@ -8,6 +8,12 @@ class RuntimeError extends \Exception {
 }
 
 class Interpreter implements Visitor<mixed> {
+    private Environment $environ;
+
+    public function __construct() {
+        $this->environ = new Environment();
+    }
+
     public function interpret(Vector<Stmt> $statements): void {
         try {
             foreach ($statements as $stmt) {
@@ -19,7 +25,11 @@ class Interpreter implements Visitor<mixed> {
     }
 
     public function visitVarDeclStmt(VarDecl $varDecl): void {
-
+        $value = NULL;
+        if ($varDecl->initializer !== NULL) {
+            $value = $this->evaluate($varDecl->initializer);
+        }
+        $this->environ->define($varDecl->name->lexeme(), $value);
     }
 
     public function visitExpressionStmt(Expression $expression): void {
@@ -32,7 +42,7 @@ class Interpreter implements Visitor<mixed> {
     }
 
     public function visitVariableExpr(Variable $expr): mixed {
-        return $expr;
+        return $this->environ->get($expr->name);
     }
 
     public function visitBinaryExpr(Binary $binary): mixed {
