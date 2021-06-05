@@ -16,4 +16,13 @@ class Environment {
 
         throw new RuntimeError($name, 'Undefined variable ' . $name->lexeme() . '.');
     }
+
+    public function assign(Token $name, mixed $value): void {
+        if (C\contains_key($this->environ, $name->lexeme())) {
+            $this->environ[$name->lexeme()] = $value;
+            return;
+        }
+
+        throw new RuntimeError($name, 'Undefined variable ' . $name->lexeme() . '.');
+    }
 }

@@ -45,6 +45,12 @@ class Interpreter implements Visitor<mixed> {
         return $this->environ->get($expr->name);
     }
 
+    public function visitAssignExpr(Assign $expr): mixed {
+        $value = $this->evaluate($expr->value);
+        $this->environ->assign($expr->name, $value);
+        return $value;
+    }
+
     public function visitBinaryExpr(Binary $binary): mixed {
         $left = $this->evaluate($binary->left);
         $right = $this->evaluate($binary->right);

@@ -89,9 +89,24 @@ class Parser {
 
         return $expr;
     }
-
     private function expression(): Expr {
-        return $this->equality();
+        return $this->assignment();
+    }
+
+    private function assignment(): Expr {
+        $expr = $this->equality();
+
+        if ($this->match(TokenType::EQUAL)) {
+            $equal = $this->previous();
+            $value = $this->assignment();
+            if ($expr is Variable) {
+                return new Assign($expr->name, $value);
+            }
+
+            $this->error($equal, 'Invalid assignment target.');
+        }
+
+        return $expr;
     }
 
     private function equality(): Expr {

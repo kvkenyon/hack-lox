@@ -6,6 +6,7 @@ interface Visitor<T> {
     public function visitLiteralExpr(Literal $expr): T;
     public function visitUnaryExpr(Unary $expr): T;
     public function visitVariableExpr(Variable $expr): T;
+    public function visitAssignExpr(Assign $expr): T;
     public function visitExpressionStmt(Expression $stmt): T;
     public function visitShowStmt(Show $stmt): T;
     public function visitVarDeclStmt(VarDecl $stmt): T;

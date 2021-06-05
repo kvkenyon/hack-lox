@@ -20,7 +20,8 @@ async function main_async(): Awaitable<void> {
       'Grouping : Expr $expression',
       'Literal  : Object $value',
       'Unary    : Token $operator, Expr $right',
-      'Variable : Token $name'];
+      'Variable : Token $name',
+      'Assign   : Token $name, Expr $value'];
 
     await define_ast_async($outputDir, 'Expr', $typesExpr);
 

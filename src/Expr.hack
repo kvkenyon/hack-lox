@@ -85,3 +85,17 @@ class Variable extends Expr {
         return $visitor->visitVariableExpr($this);
     }
 }
+
+class Assign extends Expr {
+    public Token $name;
+    public Expr $value;
+    public function __construct(Token $name, Expr $value) {
+        $this->name = $name;
+        $this->value = $value;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitAssignExpr($this);
+    }
+}
