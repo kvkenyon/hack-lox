@@ -27,7 +27,7 @@ class Parser {
                 return $this->varDecl();
             }
             return $this->statement();
- 
+
         } catch(ParseError $error) {
             $this->synchronize();
             throw $error;
@@ -36,7 +36,7 @@ class Parser {
 
     private function varDecl(): Stmt {
         $name = $this->consume(TokenType::IDENTIFIER, 'Expected variable name.');
-        
+
         $init = NULL;
         if ($this->match(TokenType::EQUAL)) {
             $init = $this->comma();
@@ -164,6 +164,11 @@ class Parser {
             return new Literal(new Object(NULL));
         }
 
+        if ($this->match(TokenType::IDENTIFIER)) {
+            $token = $this->previous();
+            return new Variable($token);
+        }
+
         if ($this->match(TokenType::NUMBER) || $this->match(TokenType::STRING)) {
             $token = $this->previous();
             if ($token->literal !== NULL) {
@@ -196,7 +201,7 @@ class Parser {
         $this->advance();
 
         while (!$this->isAtEnd()) {
-            if ($this->previous()->type === TokenType::SEMICOLON) return;
+            if ($this->previous()->type === TokenType::SEMICOLON) { return; }
             switch($this->peek()->type) {
                 case TokenType::CLAZZ:
                 case TokenType::FUN:
@@ -209,7 +214,7 @@ class Parser {
                     return;
                 default:
             }
-            $this->advance(); 
+            $this->advance();
         }
     }
 
