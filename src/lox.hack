@@ -28,11 +28,12 @@ class Lox {
     public static async function runPromptAsync(): Awaitable<void> {
         $_in = IO\request_input();
         $_reader = new IO\BufferedReader($_in);
+        $interpreter = Lox::getInterpreter();
         for(;;) {
             \printf('> ');
             $line = await $_reader->readLineAsync();
             if ($line === NULL) { break; }
-            Lox::run($line);
+            Lox::run($line, $interpreter);
             Lox::$had_error = false;
         }
     }
@@ -46,7 +47,7 @@ class Lox {
         try {
             $handle = File\open_read_only($filename);
             $source = await $handle->readAllAsync();
-            Lox::run($source);
+            Lox::run($source, Lox::getInterpreter());
             if (Lox::$had_error) {
                 exit(65);
             }
@@ -62,7 +63,7 @@ class Lox {
         }
     }
 
-    public static function run(string $source): int {
+    public static function run(string $source, Interpreter $interpreter): int {
         $scanner = new Scanner($source);
         $tokens = $scanner->scanTokens();
 
@@ -71,7 +72,7 @@ class Lox {
 
         if (Lox::$had_error) { return 66; }
         if ($stmts!== null) {
-            Lox::getInterpreter()->interpret($stmts);
+            $interpreter->interpret($stmts);
         }
         return 0;
     }
