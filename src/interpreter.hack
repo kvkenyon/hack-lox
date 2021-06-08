@@ -10,14 +10,39 @@ class RuntimeError extends \Exception {
 class Interpreter implements Visitor<mixed> {
     private Environment $environ;
 
-    public function __construct() {
+    public function __construct(private bool $isPrompt = False) {
         $this->environ = new Environment();
     }
 
     public function interpret(Vector<Stmt> $statements): void {
+        if ($this->isPrompt) {
+            $this->interpretPrompt($statements);
+            return;
+        }
+
         try {
             foreach ($statements as $stmt) {
                 $this->execute($stmt);
+            }
+        } catch (RuntimeError $error) {
+            Lox::errorRuntime($error);
+        }
+    }
+
+    public function interpretPrompt(Vector<Stmt> $stmts): void {
+        try {
+            foreach ($stmts as $stmt) {
+                if ($stmt is Expression) {
+                    $value = $this->evaluate($stmt->expression);
+                    if ($value === true) {
+                        $value = 'true';
+                    } else if ($value === false) {
+                        $value = 'false';
+                    }
+                    \printf("%s\n", (string)$value);
+                } else {
+                    $this->execute($stmt);
+                }
             }
         } catch (RuntimeError $error) {
             Lox::errorRuntime($error);

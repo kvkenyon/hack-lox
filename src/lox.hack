@@ -28,7 +28,7 @@ class Lox {
     public static async function runPromptAsync(): Awaitable<void> {
         $_in = IO\request_input();
         $_reader = new IO\BufferedReader($_in);
-        $interpreter = Lox::getInterpreter();
+        $interpreter = Lox::getInterpreterPrompt();
         for(;;) {
             \printf('> ');
             $line = await $_reader->readLineAsync();
@@ -40,6 +40,10 @@ class Lox {
 
     private static function getInterpreter(): Interpreter {
         return new Interpreter();
+    }
+
+    private static function getInterpreterPrompt(): Interpreter {
+        return new Interpreter(true);
     }
 
     public static async function runFileAsync(string $filename): Awaitable<void> {
