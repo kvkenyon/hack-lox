@@ -29,7 +29,8 @@ async function main_async(): Awaitable<void> {
         'Expression : Expr $expression',
         'Show       : Expr $expression',
         'VarDecl    : Token $name, ?Expr $initializer',
-        'Block      : Vector<Stmt> $statements'
+        'Block      : Vector<Stmt> $statements',
+        'IfElse     : Expr $condition, Stmt $thenBranch, ?Stmt $elseBranch'
     ];
 
     await define_ast_async($outputDir, 'Stmt', $typesStmt);

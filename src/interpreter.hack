@@ -34,10 +34,8 @@ class Interpreter implements Visitor<mixed> {
             foreach ($stmts as $stmt) {
                 if ($stmt is Expression) {
                     $value = $this->evaluate($stmt->expression);
-                    if ($value === true) {
-                        $value = 'true';
-                    } else if ($value === false) {
-                        $value = 'false';
+                    if (\is_bool($value)) {
+                        $value = ($value === true) ? 'true' : 'false';
                     }
                     \printf("%s\n", (string)$value);
                 } else {
@@ -58,8 +56,15 @@ class Interpreter implements Visitor<mixed> {
     }
 
     public function visitBlockStmt(Block $block): void {
-        // TODO: Implement
         $this->executeBlock($block, new Environment(dict[], $this->environ));
+    }
+
+    public function visitIfElseStmt(IfElse $stmt): void {
+        if ($this->isTruthy($this->evaluate($stmt->condition))) {
+            $this->execute($stmt->thenBranch);
+        } else if ($stmt->elseBranch !== NULL) {
+            $this->execute($stmt->elseBranch);
+        }
     }
 
     public function visitExpressionStmt(Expression $expression): void {

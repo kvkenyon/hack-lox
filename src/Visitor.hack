@@ -11,4 +11,5 @@ interface Visitor<T> {
     public function visitShowStmt(Show $stmt): T;
     public function visitVarDeclStmt(VarDecl $stmt): T;
     public function visitBlockStmt(Block $stmt): T;
+    public function visitIfElseStmt(IfElse $stmt): T;
 }

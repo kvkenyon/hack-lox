@@ -53,3 +53,19 @@ class Block extends Stmt {
         return $visitor->visitBlockStmt($this);
     }
 }
+
+class IfElse extends Stmt {
+    public Expr $condition;
+    public Stmt $thenBranch;
+    public ?Stmt $elseBranch;
+    public function __construct(Expr $condition, Stmt $thenBranch, ?Stmt $elseBranch) {
+        $this->condition = $condition;
+        $this->thenBranch = $thenBranch;
+        $this->elseBranch = $elseBranch;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitIfElseStmt($this);
+    }
+}

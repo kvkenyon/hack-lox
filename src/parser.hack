@@ -55,7 +55,24 @@ class Parser {
             return new Block($this->block());
         }
 
+        if ($this->match(TokenType::IF)) {
+            return $this->ifElseStatement();
+        }
+
         return $this->expressionStatement();
+    }
+
+    private function ifElseStatement(): Stmt {
+       $this->consume(TokenType::LEFT_PAREN, "Expected '(' after if.");
+       $conditional = $this->expression();
+       $this->consume(TokenType::RIGHT_PAREN, "Expected ')' after then block.");
+
+       $thenBranch = $this->statement();
+       $elseBranch = NULL;
+       if ($this->match(TokenType::ELSE)) {
+           $elseBranch = $this->statement();
+       }
+       return new IfElse($conditional, $thenBranch, $elseBranch);
     }
 
     private function printStatement(): Stmt {
