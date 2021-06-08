@@ -3,7 +3,9 @@ namespace Lox;
 use namespace HH\Lib\C;
 
 class Environment {
-    public function __construct(private dict<string, mixed> $environ = dict[]) {}
+    public function __construct(
+        private dict<string, mixed> $environ = dict[],
+        private ?Environment $enclosing = NULL) {}
 
     public function define(string $name, mixed $value): void {
         $this->environ[$name] = $value;
@@ -12,6 +14,8 @@ class Environment {
     public function get(Token $name): mixed {
         if (C\contains_key($this->environ, $name->lexeme())) {
             return $this->environ[$name->lexeme()];
+        } else if ($this->enclosing !== NULL) {
+            return $this->enclosing->get($name);
         }
 
         throw new RuntimeError($name, 'Undefined variable ' . $name->lexeme() . '.');
@@ -20,6 +24,9 @@ class Environment {
     public function assign(Token $name, mixed $value): void {
         if (C\contains_key($this->environ, $name->lexeme())) {
             $this->environ[$name->lexeme()] = $value;
+            return;
+        } else if ($this->enclosing !== NULL) {
+            $this->enclosing->assign($name, $value);
             return;
         }
 

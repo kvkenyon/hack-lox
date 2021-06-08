@@ -32,6 +32,11 @@ class Interpreter implements Visitor<mixed> {
         $this->environ->define($varDecl->name->lexeme(), $value);
     }
 
+    public function visitBlockStmt(Block $block): void {
+        // TODO: Implement
+        $this->executeBlock($block, new Environment(dict[], $this->environ));
+    }
+
     public function visitExpressionStmt(Expression $expression): void {
         $this->evaluate($expression->expression);
     }
@@ -135,6 +140,18 @@ class Interpreter implements Visitor<mixed> {
 
     private function execute(Stmt $stmt): void {
         $stmt->accept($this);
+    }
+
+    private function executeBlock(Block $block, Environment $environ): void {
+        $previous = $this->environ;
+        try {
+            $this->environ = $environ;
+            foreach ($block->statements as $statement) {
+                $this->execute($statement);
+            }
+        } finally {
+            $this->environ = $previous;
+        }
     }
 
     private function isTruthy(mixed $obj): bool {

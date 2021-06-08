@@ -41,3 +41,15 @@ class VarDecl extends Stmt {
         return $visitor->visitVarDeclStmt($this);
     }
 }
+
+class Block extends Stmt {
+    public Vector<Stmt> $statements;
+    public function __construct(Vector<Stmt> $statements) {
+        $this->statements = $statements;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitBlockStmt($this);
+    }
+}

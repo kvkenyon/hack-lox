@@ -50,6 +50,11 @@ class Parser {
         if ($this->match(TokenType::PRINT)) {
             return $this->printStatement();
         }
+
+        if ($this->match(TokenType::LEFT_BRACE)) {
+            return new Block($this->block());
+        }
+
         return $this->expressionStatement();
     }
 
@@ -57,6 +62,17 @@ class Parser {
         $expr = $this->comma();
         $this->consume(TokenType::SEMICOLON, '; expected after statement.');
         return new Show($expr);
+    }
+
+    private function block(): Vector<Stmt> {
+        $statements = new Vector<Stmt>(NULL);
+
+        while (!$this->isAtEnd() && !$this->check(TokenType::RIGHT_BRACE)) {
+            $statements->add($this->declaration());
+        }
+
+        $this->consume(TokenType::RIGHT_BRACE, "Expected '}' after block.");
+        return $statements;
     }
 
     private function expressionStatement(): Stmt {

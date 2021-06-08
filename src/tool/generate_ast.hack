@@ -27,8 +27,9 @@ async function main_async(): Awaitable<void> {
 
     $typesStmt = vec<string> [
         'Expression : Expr $expression',
-        'Show: Expr $expression',
-        'VarDecl: Token $name, ?Expr $initializer'
+        'Show       : Expr $expression',
+        'VarDecl    : Token $name, ?Expr $initializer',
+        'Block      : Vector<Stmt> $statements'
     ];
 
     await define_ast_async($outputDir, 'Stmt', $typesStmt);
