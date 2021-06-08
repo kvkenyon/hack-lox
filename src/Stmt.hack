@@ -69,3 +69,17 @@ class IfElse extends Stmt {
         return $visitor->visitIfElseStmt($this);
     }
 }
+
+class WhileLoop extends Stmt {
+    public Expr $condition;
+    public Stmt $body;
+    public function __construct(Expr $condition, Stmt $body) {
+        $this->condition = $condition;
+        $this->body = $body;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitWhileLoopStmt($this);
+    }
+}

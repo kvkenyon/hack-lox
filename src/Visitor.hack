@@ -12,4 +12,5 @@ interface Visitor<T> {
     public function visitVarDeclStmt(VarDecl $stmt): T;
     public function visitBlockStmt(Block $stmt): T;
     public function visitIfElseStmt(IfElse $stmt): T;
+    public function visitWhileLoopStmt(WhileLoop $stmt): T;
 }

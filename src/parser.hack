@@ -59,6 +59,14 @@ class Parser {
             return $this->ifElseStatement();
         }
 
+        if ($this->match(TokenType::WHILE)) {
+            return $this->whileStatement();
+        }
+
+        if ($this->match(TokenType::FOR)) {
+            return $this->forStatement();
+        }
+
         return $this->expressionStatement();
     }
 
@@ -73,6 +81,53 @@ class Parser {
            $elseBranch = $this->statement();
        }
        return new IfElse($conditional, $thenBranch, $elseBranch);
+    }
+
+    private function whileStatement(): Stmt {
+        $this->consume(TokenType::LEFT_PAREN, "Expect '(' after while.");
+        $condition = $this->expression();
+        $this->consume(TokenType::RIGHT_PAREN, "Expect ')' after while.");
+        $body = $this->statement();
+        return new WhileLoop($condition, $body);
+    }
+
+    private function forStatement(): Stmt {
+        $this->consume(TokenType::LEFT_PAREN, "Expect '(' after for.");
+        if ($this->match(TokenType::SEMICOLON)) {
+            $init = NULL;
+        } else if ($this->match(TokenType::VAR)) {
+            $init = $this->varDecl();
+        } else {
+            $init = $this->expressionStatement();
+        }
+
+        $condition = new Literal(new Object(true));
+        if (!$this->check(TokenType::SEMICOLON)) {
+           $condition = $this->expression();
+        }
+        $this->consume(TokenType::SEMICOLON, 'Expect ; after loop condition.');
+
+        $increment = NULL;
+        if (!$this->check(TokenType::RIGHT_PAREN)) {
+            $increment = $this->expression();
+        }
+
+        $this->consume(TokenType::RIGHT_PAREN, "Expect ')' after for clauses.");
+
+        $body = $this->statement();
+
+        if ($increment!== NULL) {
+            $stmts = new Vector<Stmt>(vec[$body, new Expression($increment)]);
+            $body = new Block($stmts);
+        }
+
+        $body = new WhileLoop($condition, $body);
+
+        if ($init !== NULL) {
+            $body = new Block(new Vector<Stmt>(vec[$init, $body]));
+        }
+
+        return $body;
     }
 
     private function printStatement(): Stmt {

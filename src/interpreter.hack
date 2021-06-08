@@ -67,6 +67,12 @@ class Interpreter implements Visitor<mixed> {
         }
     }
 
+    public function visitWhileLoopStmt(WhileLoop $stmt): void {
+        while ($this->isTruthy($this->evaluate($stmt->condition))) {
+            $this->execute($stmt->body);
+        }
+    }
+
     public function visitExpressionStmt(Expression $expression): void {
         $this->evaluate($expression->expression);
     }
