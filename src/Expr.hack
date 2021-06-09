@@ -36,6 +36,22 @@ class Binary extends Expr {
     }
 }
 
+class Call extends Expr {
+    public Expr $calle;
+    public Token $paren;
+    public Vector<Expr> $arguments;
+    public function __construct(Expr $calle, Token $paren, Vector<Expr> $arguments) {
+        $this->calle = $calle;
+        $this->paren = $paren;
+        $this->arguments = $arguments;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitCallExpr($this);
+    }
+}
+
 class Grouping extends Expr {
     public Expr $expression;
     public function __construct(Expr $expression) {

@@ -7,11 +7,27 @@ class RuntimeError extends \Exception {
     }
 }
 
+class Clock implements LoxCallable {
+    public function arity(): num {
+        return 0;
+    }
+
+    public function call(Interpreter $interpreter, Vector<mixed> $args): mixed {
+        $sec = 0;
+        $ns = 0;
+        \clock_gettime(0, inout $sec, inout $ns);
+        return $sec;
+    }
+}
+
 class Interpreter implements Visitor<mixed> {
+    public Environment $globals;
     private Environment $environ;
 
     public function __construct(private bool $isPrompt = False) {
-        $this->environ = new Environment();
+        $this->globals = new Environment();
+        $this->environ = $this->globals;
+        $this->globals->define('clock', new Clock());
     }
 
     public function interpret(Vector<Stmt> $statements): void {
@@ -136,6 +152,24 @@ class Interpreter implements Visitor<mixed> {
                 throw new RuntimeError($binary->operator, 'Unsupported operation.');
         }
         return NULL;
+    }
+
+    public function visitCallExpr(Call $expr): mixed {
+        $callee = $this->evaluate($expr->calle);
+
+        $args = new Vector<mixed>(NULL);
+        foreach ($expr->arguments as $arg) {
+            $args->add($this->evaluate($arg));
+        }
+
+        if ($callee is LoxCallable) {
+            if ($callee->arity() !== \count($args)) {
+                throw new RuntimeError($expr->paren, 'Expected ' .
+                 $callee->arity() . ' arguments but received ' . \count($args));
+            }
+            return $callee->call($this, $args);
+        }
+        throw new RuntimeError($expr->paren, 'Expected function for callee.');
     }
 
     public function visitTernaryExpr(Ternary $ternary): mixed {

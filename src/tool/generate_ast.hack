@@ -17,6 +17,7 @@ async function main_async(): Awaitable<void> {
     $typesExpr = vec<string>[
       'Ternary  : Expr $a, Expr $b, Expr $c',
       'Binary   : Expr $left, Token $operator, Expr $right',
+      'Call     : Expr $calle, Token $paren, Vector<Expr> $arguments',
       'Grouping : Expr $expression',
       'Literal  : Object $value',
       'Unary    : Token $operator, Expr $right',
