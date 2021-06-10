@@ -71,6 +71,11 @@ class Interpreter implements Visitor<mixed> {
         $this->environ->define($varDecl->name->lexeme(), $value);
     }
 
+    public function visitFuncStmt(Func $func): void {
+        $loxFunc = new LoxFunction($func);
+        $this->environ->define($func->name->lexeme(), $loxFunc);
+    }
+
     public function visitBlockStmt(Block $block): void {
         $this->executeBlock($block, new Environment(dict[], $this->environ));
     }
@@ -212,7 +217,7 @@ class Interpreter implements Visitor<mixed> {
         $stmt->accept($this);
     }
 
-    private function executeBlock(Block $block, Environment $environ): void {
+    public function executeBlock(Block $block, Environment $environ): void {
         $previous = $this->environ;
         try {
             $this->environ = $environ;

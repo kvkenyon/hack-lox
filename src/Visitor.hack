@@ -14,4 +14,5 @@ interface Visitor<T> {
     public function visitBlockStmt(Block $stmt): T;
     public function visitIfElseStmt(IfElse $stmt): T;
     public function visitWhileLoopStmt(WhileLoop $stmt): T;
+    public function visitFuncStmt(Func $stmt): T;
 }

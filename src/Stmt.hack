@@ -83,3 +83,19 @@ class WhileLoop extends Stmt {
         return $visitor->visitWhileLoopStmt($this);
     }
 }
+
+class Func extends Stmt {
+    public Token $name;
+    public Vector<Token> $params;
+    public Vector<Stmt> $body;
+    public function __construct(Token $name, Vector<Token> $params, Vector<Stmt> $body) {
+        $this->name = $name;
+        $this->params = $params;
+        $this->body = $body;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitFuncStmt($this);
+    }
+}

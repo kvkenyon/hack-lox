@@ -67,6 +67,10 @@ class Parser {
             return $this->forStatement();
         }
 
+        if ($this->match(TokenType::FUN)) {
+            return $this->functionStatement('function');
+        }
+
         return $this->expressionStatement();
     }
 
@@ -130,6 +134,24 @@ class Parser {
         return $body;
     }
 
+    private function functionStatement(string $kind): Stmt {
+        $name = $this->consume(TokenType::IDENTIFIER, 'Expect ' . $kind . ' name.');
+        $this->consume(TokenType::LEFT_PAREN, "Expect '(' after " . ' name.');
+        $params = new Vector<Token>(NULL);
+        if (!$this->check(TokenType::RIGHT_PAREN)) {
+            do {
+                if (\count($params) >= 255) {
+                    $this->error($this->peek(), 'Too many parameters (< 255).');
+                }
+                $params->add($this->consume(TokenType::IDENTIFIER, 'Expect identifier for ' . $kind . ' parameters.'));    
+            } while($this->match(TokenType::COMMA));
+        }
+        $this->consume(TokenType::RIGHT_PAREN, "Expect ')' after parameter list.");
+        $this->consume(TokenType::LEFT_BRACE, "Expect '{' after " . $kind . "declaration.");
+        $body = $this->block();
+        return new Func($name, $params, $body);
+    }
+
     private function printStatement(): Stmt {
         $expr = $this->comma();
         $this->consume(TokenType::SEMICOLON, '; expected after statement.');
@@ -152,7 +174,7 @@ class Parser {
         $this->consume(TokenType::SEMICOLON, '; expected after statement.');
         return new Expression($expr);
     }
-
+ 
     private function comma(): Expr {
         $expr = $this->ternary();
 
