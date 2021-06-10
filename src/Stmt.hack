@@ -99,3 +99,18 @@ class Func extends Stmt {
         return $visitor->visitFuncStmt($this);
     }
 }
+
+class Ret extends Stmt {
+    public Token $keyword;
+    public ?Expr $value;
+    public function __construct(Token $keyword, ?Expr $value) {
+        $this->keyword = $keyword;
+        $this->value = $value;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitRetStmt($this);
+    }
+}
+

@@ -15,4 +15,5 @@ interface Visitor<T> {
     public function visitIfElseStmt(IfElse $stmt): T;
     public function visitWhileLoopStmt(WhileLoop $stmt): T;
     public function visitFuncStmt(Func $stmt): T;
+    public function visitRetStmt(Ret $stmt): T;
 }

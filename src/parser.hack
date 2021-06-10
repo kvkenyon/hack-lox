@@ -71,6 +71,10 @@ class Parser {
             return $this->functionStatement('function');
         }
 
+        if ($this->match(TokenType::RETURN)) {
+            return $this->returnStatement();
+        }
+
         return $this->expressionStatement();
     }
 
@@ -150,6 +154,16 @@ class Parser {
         $this->consume(TokenType::LEFT_BRACE, "Expect '{' after " . $kind . "declaration.");
         $body = $this->block();
         return new Func($name, $params, $body);
+    }
+
+    private function returnStatement(): Stmt {
+        $keyword = $this->previous();
+        $value = NULL;
+        if (!$this->check(TokenType::SEMICOLON)) {
+            $value = $this->expression();
+        }
+        $this->consume(TokenType::SEMICOLON, "Expect ';' after return value.");
+        return new Ret($keyword, $value);
     }
 
     private function printStatement(): Stmt {

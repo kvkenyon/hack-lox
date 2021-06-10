@@ -33,7 +33,8 @@ async function main_async(): Awaitable<void> {
         'Block      : Vector<Stmt> $statements',
         'IfElse     : Expr $condition, Stmt $thenBranch, ?Stmt $elseBranch',
         'WhileLoop  : Expr $condition, Stmt $body',
-        'Func   : Token $name, Vector<Token> $params, Vector<Stmt> $body'
+        'Func   : Token $name, Vector<Token> $params, Vector<Stmt> $body',
+        'Ret    : Token $keyword, ?Expr $value'
     ];
 
     await define_ast_async($outputDir, 'Stmt', $typesStmt);

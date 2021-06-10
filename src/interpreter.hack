@@ -7,6 +7,13 @@ class RuntimeError extends \Exception {
     }
 }
 
+class ReturnException extends \Exception { 
+    <<__Override>>
+    public function __construct(public mixed $value) {
+        parent::__construct();
+    }
+} 
+
 class Clock implements LoxCallable {
     public function arity(): num {
         return 0;
@@ -74,6 +81,14 @@ class Interpreter implements Visitor<mixed> {
     public function visitFuncStmt(Func $func): void {
         $loxFunc = new LoxFunction($func);
         $this->environ->define($func->name->lexeme(), $loxFunc);
+    }
+
+    public function visitRetStmt(Ret $stmt): void {
+        $value = NULL;
+        if ($stmt->value !== NULL) {
+            $value = $this->evaluate($stmt->value);
+        }
+        throw new ReturnException($value);
     }
 
     public function visitBlockStmt(Block $block): void {

@@ -13,7 +13,11 @@ class LoxFunction implements LoxCallable {
             $localEnv->define($this->fun->params->at($i)->lexeme(),
              $params->at($i));
         }
-        $in->executeBlock(new Block($this->fun->body), $localEnv);
+        try {
+            $in->executeBlock(new Block($this->fun->body), $localEnv);
+        } catch (ReturnException $ret) {
+            return $ret->value;
+        }
         return NULL;
     }
 
