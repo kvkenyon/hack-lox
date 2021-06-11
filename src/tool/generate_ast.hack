@@ -20,6 +20,7 @@ async function main_async(): Awaitable<void> {
       'Call     : Expr $calle, Token $paren, Vector<Expr> $arguments',
       'Grouping : Expr $expression',
       'Literal  : Object $value',
+      'Lambda   : Vector<Token> $params, Vector<Stmt> $body',
       'Unary    : Token $operator, Expr $right',
       'Variable : Token $name',
       'Assign   : Token $name, Expr $value'];

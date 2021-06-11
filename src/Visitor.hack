@@ -5,6 +5,7 @@ interface Visitor<T> {
     public function visitCallExpr(Call $expr): T;
     public function visitGroupingExpr(Grouping $expr): T;
     public function visitLiteralExpr(Literal $expr): T;
+    public function visitLambdaExpr(Lambda $expr): T;
     public function visitUnaryExpr(Unary $expr): T;
     public function visitVariableExpr(Variable $expr): T;
     public function visitAssignExpr(Assign $expr): T;

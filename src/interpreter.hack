@@ -174,6 +174,10 @@ class Interpreter implements Visitor<mixed> {
         return NULL;
     }
 
+    public function visitLambdaExpr(Lambda $expr): mixed {
+        return new LoxLambda($expr, $this->environ);
+    }
+
     public function visitCallExpr(Call $expr): mixed {
         $callee = $this->evaluate($expr->calle);
 

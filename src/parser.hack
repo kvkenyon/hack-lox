@@ -67,12 +67,16 @@ class Parser {
             return $this->forStatement();
         }
 
-        if ($this->match(TokenType::FUN)) {
-            return $this->functionStatement('function');
-        }
-
         if ($this->match(TokenType::RETURN)) {
             return $this->returnStatement();
+        }
+
+        if ($this->match(TokenType::FUN)) {
+            if (!$this->check(TokenType::LEFT_PAREN)) {
+                return $this->functionStatement('function');
+            } else {
+                return new Expression($this->finishLambda());
+            }
         }
 
         return $this->expressionStatement();
@@ -213,8 +217,34 @@ class Parser {
 
         return $expr;
     }
+
     private function expression(): Expr {
-        return $this->assignment();
+        return $this->lambda();
+    }
+
+    private function lambda(): Expr {
+        if ($this->match(TokenType::FUN)) {
+            return $this->finishLambda();
+        } else {
+            return $this->assignment();
+        }
+    }
+
+    private function finishLambda(): Expr {
+        $this->consume(TokenType::LEFT_PAREN, "Expect '(' after lambda function." );
+        $params = new Vector<Token>(NULL);
+        if (!$this->check(TokenType::RIGHT_PAREN)) {
+            do {
+                if (\count($params) >= 255) {
+                    $this->error($this->peek(), 'Too many parameters (< 255).');
+                }
+                $params->add($this->consume(TokenType::IDENTIFIER, 'Expect identifier for lambda parameters.'));    
+            } while($this->match(TokenType::COMMA));
+        }
+        $this->consume(TokenType::RIGHT_PAREN, "Expect ')' after parameter list.");
+        $this->consume(TokenType::LEFT_BRACE, "Expect '{' after lambda declaration.");
+        $body = $this->block();
+        return new Lambda($params, $body);
     }
 
     private function assignment(): Expr {
@@ -222,7 +252,7 @@ class Parser {
 
         if ($this->match(TokenType::EQUAL)) {
             $equal = $this->previous();
-            $value = $this->assignment();
+            $value = $this->lambda();
             if ($expr is Variable) {
                 return new Assign($expr->name, $value);
             }

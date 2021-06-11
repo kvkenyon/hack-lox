@@ -76,6 +76,20 @@ class Literal extends Expr {
     }
 }
 
+class Lambda extends Expr {
+    public Vector<Token> $params;
+    public Vector<Stmt> $body;
+    public function __construct(Vector<Token> $params, Vector<Stmt> $body) {
+        $this->params = $params;
+        $this->body = $body;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitLambdaExpr($this);
+    }
+}
+
 class Unary extends Expr {
     public Token $operator;
     public Expr $right;
@@ -115,4 +129,3 @@ class Assign extends Expr {
         return $visitor->visitAssignExpr($this);
     }
 }
-
