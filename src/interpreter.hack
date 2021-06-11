@@ -79,7 +79,7 @@ class Interpreter implements Visitor<mixed> {
     }
 
     public function visitFuncStmt(Func $func): void {
-        $loxFunc = new LoxFunction($func);
+        $loxFunc = new LoxFunction($func, $this->environ);
         $this->environ->define($func->name->lexeme(), $loxFunc);
     }
 

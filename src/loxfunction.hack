@@ -1,14 +1,14 @@
 namespace Lox;
 
 class LoxFunction implements LoxCallable {
-    public function __construct(private Func $fun) {}
+    public function __construct(private Func $fun, private Environment $closure) {}
 
     public function arity(): num {
         return \count($this->fun->params); 
     }
 
     public function call(Interpreter $in, Vector<mixed> $params): mixed {
-        $localEnv = new Environment(dict[], $in->globals);
+        $localEnv = new Environment(dict[], $this->closure);
         for ($i = 0; $i < \count($params); $i++) {
             $localEnv->define($this->fun->params->at($i)->lexeme(),
              $params->at($i));
