@@ -1,10 +1,10 @@
 namespace Lox;
 
 class Resolver implements Visitor<void> {
-    private Vector<Map<string, bool>> $scopes;
+    private Vector<dict<string, bool>> $scopes;
 
     public function __construct(private Interpreter $interpreter) {
-        $this->scopes = new Vector<Map<string, bool>>(NULL);
+        $this->scopes = new Vector<dict<string, bool>>(NULL);
     }
 
     public function visitTernaryExpr(Ternary $expr): void {}
@@ -24,7 +24,7 @@ class Resolver implements Visitor<void> {
     public function visitVariableExpr(Variable $expr): void {
         $scope = $this->scopes->lastValue();
         if ($scope !== NULL) {
-            if ($scope->get($expr->name->lexeme()) == false) {
+            if (!$scope[$expr->name->lexeme()]) {
                 Lox::error($expr->name->line, "Can't read local variable in its own initializer");
             }
         }
@@ -65,14 +65,14 @@ class Resolver implements Visitor<void> {
     private function declare(Token $name): void {
         $scope = $this->scopes->lastValue();
         if ($scope !== NULL) {
-            $scope->set($name->lexeme(), false);
+            $scope[$name->lexeme()] = false;
         }
     }
 
     private function define(Token $name):void {
         $scope = $this->scopes->lastValue();
         if ($scope !== NULL) {
-            $scope->set($name->lexeme(), true);
+            $scope[$name->lexeme()] = true;
         }
     }
     
@@ -91,7 +91,7 @@ class Resolver implements Visitor<void> {
     }
 
     private function beginScope(): void {
-        $this->scopes->add(new Map<string, bool>(NULL));
+        $this->scopes->add(dict<string, bool>[]);
     }
 
     private function endScope(): void {
