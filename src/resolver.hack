@@ -1,18 +1,10 @@
 namespace Lox;
 
-class Scope {
-    private Map<string, bool> $scope;
-    
-    public function __construct() {
-        $this->scope = new Map<string, bool>(NULL);
-    }
-}
-
 class Resolver implements Visitor<void> {
-    private Vector<Scope> $scopes;
+    private Vector<Map<string, bool>> $scopes;
 
     public function __construct(private Interpreter $interpreter) {
-        $this->scopes = new Vector<Scope>(NULL);
+        $this->scopes = new Vector<Map<string, bool>>(NULL);
     }
 
     public function visitTernaryExpr(Ternary $expr): void {}
@@ -29,7 +21,14 @@ class Resolver implements Visitor<void> {
 
     public function visitUnaryExpr(Unary $expr): void {}
 
-    public function visitVariableExpr(Variable $expr): void {}
+    public function visitVariableExpr(Variable $expr): void {
+        $scope = $this->scopes->lastValue();
+        if ($scope !== NULL) {
+            if ($scope->get($expr->name->lexeme()) == false) {
+                Lox::error($expr->name->line, "Can't read local variable in its own initializer");
+            }
+        }
+    }
 
     public function visitAssignExpr(Assign $expr): void {}
 
@@ -38,7 +37,11 @@ class Resolver implements Visitor<void> {
     public function visitShowStmt(Show $stmt): void {}
 
     public function visitVarDeclStmt(VarDecl $stmt): void {
-        
+        $this->declare($stmt->name);
+        if ($stmt->initializer !== NULL) {
+            $this->resolveExpression($stmt->initializer);
+        }
+        $this->define($stmt->name);
     }
 
     public function visitBlockStmt(Block $stmt): void {
@@ -60,12 +63,22 @@ class Resolver implements Visitor<void> {
      * -------- */
     
     private function declare(Token $name): void {
+        $scope = $this->scopes->lastValue();
+        if ($scope !== NULL) {
+            $scope->set($name->lexeme(), false);
+        }
+    }
 
+    private function define(Token $name):void {
+        $scope = $this->scopes->lastValue();
+        if ($scope !== NULL) {
+            $scope->set($name->lexeme(), true);
+        }
     }
     
     private function resolveStatements(Vector<Stmt> $statements): void {
         foreach ($statements as $statement) {
-            $statement->accept($this);
+            $this->resolveStatement($statement);
         }
     }
 
@@ -78,7 +91,7 @@ class Resolver implements Visitor<void> {
     }
 
     private function beginScope(): void {
-        $this->scopes->add(new Scope());
+        $this->scopes->add(new Map<string, bool>(NULL));
     }
 
     private function endScope(): void {
