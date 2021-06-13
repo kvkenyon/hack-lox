@@ -2,11 +2,19 @@ namespace Lox;
 
 use namespace HH\Lib\C;
 
+enum FunctionType: int {
+   NONE=0;
+   FUNCTION=1;
+}
+
 class Resolver implements Visitor<void> {
     private Vector<dict<string, bool>> $scopes;
+    private FunctionType $currentFunction;
+
 
     public function __construct(private Interpreter $interpreter) {
         $this->scopes = new Vector<dict<string, bool>>(NULL);
+        $this->currentFunction = FunctionType::NONE;
     }
 
     public function visitTernaryExpr(Ternary $expr): void {
@@ -100,10 +108,13 @@ class Resolver implements Visitor<void> {
     public function visitFuncStmt(Func $stmt): void {
         $this->declare($stmt->name);
         $this->define($stmt->name);
-        $this->resolveFunction($stmt);
+        $this->resolveFunction($stmt, FunctionType::FUNCTION);
     }
 
     public function visitRetStmt(Ret $stmt): void {
+        if ($this->currentFunction !== FunctionType::FUNCTION) {
+            Lox::error($stmt->keyword->line, "Can't return from top-level code.");
+        }
         if ($stmt->value !== NULL) {
             $this->resolveExpression($stmt->value);
         }
@@ -116,6 +127,9 @@ class Resolver implements Visitor<void> {
     private function declare(Token $name): void {
         $scope = $this->scopes->lastValue();
         if ($scope !== NULL) {
+            if (C\contains_key($scope, $name->lexeme())) {
+                Lox::error($name->line, 'Variable with same name already declared in this scope.');
+            }
             $this->scopes[$this->scopes->count()-1][$name->lexeme()] = false;
         }
     }
@@ -153,7 +167,9 @@ class Resolver implements Visitor<void> {
         }
     }
 
-    private function resolveFunction(Func $stmt): void {
+    private function resolveFunction(Func $stmt, FunctionType $type): void {
+        $enclosingFunction = $this->currentFunction;
+        $this->currentFunction = $type;
         $this->beginScope();
         foreach ($stmt->params as $param) {
             $this->declare($param);
@@ -161,6 +177,7 @@ class Resolver implements Visitor<void> {
         }
         $this->resolveStatements($stmt->body);
         $this->endScope();
+        $this->currentFunction = $enclosingFunction;
     }
 
     private function beginScope(): void {

@@ -79,6 +79,7 @@ class Lox {
         $resolver = new Resolver($interpreter);
         $resolver->resolveStatements($stmts);
 
+        if (Lox::$had_error) { return 67; }
         if ($stmts!== null) {
             $interpreter->interpret($stmts);
         }
@@ -103,6 +104,7 @@ class Lox {
 
     private static function report(int $line, string $where, string $message): void {
         \printf("[line %d] Error%s: %s\n", $line, $where, $message);
+        Lox::$had_error = true;
     }
 }
 
