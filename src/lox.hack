@@ -75,6 +75,10 @@ class Lox {
         $stmts = $parser->parse();
 
         if (Lox::$had_error) { return 66; }
+
+        $resolver = new Resolver($interpreter);
+        $resolver->resolveStatements($stmts);
+
         if ($stmts!== null) {
             $interpreter->interpret($stmts);
         }

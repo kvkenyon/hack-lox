@@ -1,5 +1,7 @@
 namespace Lox;
 
+use namespace HH\Lib\C;
+
 class Resolver implements Visitor<void> {
     private Vector<dict<string, bool>> $scopes;
 
@@ -7,34 +9,66 @@ class Resolver implements Visitor<void> {
         $this->scopes = new Vector<dict<string, bool>>(NULL);
     }
 
-    public function visitTernaryExpr(Ternary $expr): void {}
+    public function visitTernaryExpr(Ternary $expr): void {
+        $this->resolveExpression($expr->a);
+        $this->resolveExpression($expr->b);
+        $this->resolveExpression($expr->c);
+    }
 
-    public function visitBinaryExpr(Binary $expr): void {}
+    public function visitBinaryExpr(Binary $expr): void {
+        $this->resolveExpression($expr->left);
+        $this->resolveExpression($expr->right);
+    }
 
-    public function visitCallExpr(Call $expr): void {}
+    public function visitCallExpr(Call $expr): void {
+        $this->resolveExpression($expr->calle);
+        foreach ($expr->arguments as $arg) {
+            $this->resolveExpression($arg);
+        }
+    }
 
-    public function visitGroupingExpr(Grouping $expr): void {}
+    public function visitGroupingExpr(Grouping $expr): void {
+        $this->resolveExpression($expr->expression);
+    }
 
     public function visitLiteralExpr(Literal $expr): void {}
 
-    public function visitLambdaExpr(Lambda $expr): void {}
+    public function visitLambdaExpr(Lambda $expr): void {
+        $this->beginScope();
+        foreach ($expr->params as $param) {
+            $this->declare($param);
+            $this->define($param);
+        }
+        $this->resolveStatements($expr->body);
+        $this->endScope();
+    }
 
-    public function visitUnaryExpr(Unary $expr): void {}
+    public function visitUnaryExpr(Unary $expr): void {
+        $this->resolveExpression($expr->right);
+    }
 
     public function visitVariableExpr(Variable $expr): void {
         $scope = $this->scopes->lastValue();
         if ($scope !== NULL) {
-            if (!$scope[$expr->name->lexeme()]) {
+            if (C\contains_key($scope, $expr->name->lexeme()) && !$scope[$expr->name->lexeme()]) {
                 Lox::error($expr->name->line, "Can't read local variable in its own initializer");
             }
         }
+        $this->resolveLocal($expr, $expr->name);
     }
 
-    public function visitAssignExpr(Assign $expr): void {}
+    public function visitAssignExpr(Assign $expr): void {
+        $this->resolveExpression($expr->value);
+        $this->resolveLocal($expr, $expr->name);
+    }
 
-    public function visitExpressionStmt(Expression $stmt): void {}
+    public function visitExpressionStmt(Expression $stmt): void {
+        $this->resolveExpression($stmt->expression);
+    }
 
-    public function visitShowStmt(Show $stmt): void {}
+    public function visitShowStmt(Show $stmt): void {
+        $this->resolveExpression($stmt->expression);
+    }
 
     public function visitVarDeclStmt(VarDecl $stmt): void {
         $this->declare($stmt->name);
@@ -50,13 +84,30 @@ class Resolver implements Visitor<void> {
         $this->endScope();
     }
 
-    public function visitIfElseStmt(IfElse $stmt): void {}
+    public function visitIfElseStmt(IfElse $stmt): void {
+        $this->resolveExpression($stmt->condition);
+        $this->resolveStatement($stmt->thenBranch);
+        if ($stmt->elseBranch !== NULL) {
+            $this->resolveStatement($stmt->elseBranch);
+        } 
+    }
 
-    public function visitWhileLoopStmt(WhileLoop $stmt): void {}
+    public function visitWhileLoopStmt(WhileLoop $stmt): void {
+        $this->resolveExpression($stmt->condition);
+        $this->resolveStatement($stmt->body);
+    }
     
-    public function visitFuncStmt(Func $stmt): void {}
+    public function visitFuncStmt(Func $stmt): void {
+        $this->declare($stmt->name);
+        $this->define($stmt->name);
+        $this->resolveFunction($stmt);
+    }
 
-    public function visitRetStmt(Ret $stmt): void {}
+    public function visitRetStmt(Ret $stmt): void {
+        if ($stmt->value !== NULL) {
+            $this->resolveExpression($stmt->value);
+        }
+    }
 
     /* -------- *
      * Helpers  * 
@@ -65,18 +116,18 @@ class Resolver implements Visitor<void> {
     private function declare(Token $name): void {
         $scope = $this->scopes->lastValue();
         if ($scope !== NULL) {
-            $scope[$name->lexeme()] = false;
+            $this->scopes[$this->scopes->count()-1][$name->lexeme()] = false;
         }
     }
 
     private function define(Token $name):void {
         $scope = $this->scopes->lastValue();
         if ($scope !== NULL) {
-            $scope[$name->lexeme()] = true;
+            $this->scopes[$this->scopes->count()-1][$name->lexeme()] = true;
         }
     }
     
-    private function resolveStatements(Vector<Stmt> $statements): void {
+    public function resolveStatements(Vector<Stmt> $statements): void {
         foreach ($statements as $statement) {
             $this->resolveStatement($statement);
         }
@@ -90,6 +141,28 @@ class Resolver implements Visitor<void> {
         $expr->accept($this);
     }
 
+    private function resolveLocal(Expr $expr, Token $name): void {
+        if ($this->scopes->isEmpty()) { return; }
+        $numScopes = $this->scopes->count();
+        for ($i = $numScopes - 1; $i >= 0; --$i) {
+            if (C\contains_key($this->scopes->at($i), $name->lexeme())) {
+                $scopeDepth = $numScopes - 1 - $i;
+                $this->interpreter->resolve($expr, $scopeDepth); 
+                return;
+            }
+        }
+    }
+
+    private function resolveFunction(Func $stmt): void {
+        $this->beginScope();
+        foreach ($stmt->params as $param) {
+            $this->declare($param);
+            $this->define($param);
+        }
+        $this->resolveStatements($stmt->body);
+        $this->endScope();
+    }
+
     private function beginScope(): void {
         $this->scopes->add(dict<string, bool>[]);
     }
@@ -97,6 +170,4 @@ class Resolver implements Visitor<void> {
     private function endScope(): void {
         $this->scopes->pop();
     }
-
-    
 }

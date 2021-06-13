@@ -21,6 +21,20 @@ class Environment {
         throw new RuntimeError($name, 'Undefined variable ' . $name->lexeme() . '.');
     }
 
+    public function getAt(num $depth, string $name): mixed {
+       return $this->ancestor($depth)->environ[$name]; 
+    }
+
+    public function ancestor(num $depth): Environment {
+        $env = $this;
+        for ($i = 0; $i < $depth; $i++) {
+            if ($env->enclosing !== NULL) {
+                $env = $env->enclosing;
+            }         
+        }
+        return $env;
+    }
+
     public function assign(Token $name, mixed $value): void {
         if (C\contains_key($this->environ, $name->lexeme())) {
             $this->environ[$name->lexeme()] = $value;
@@ -31,5 +45,9 @@ class Environment {
         }
 
         throw new RuntimeError($name, 'Undefined variable ' . $name->lexeme() . '.');
+    }
+
+    public function assignAt(num $depth, string $name, mixed $value): void {
+        $this->ancestor($depth)->environ[$name] = $value;
     }
 }

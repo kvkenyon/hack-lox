@@ -30,11 +30,13 @@ class Clock implements LoxCallable {
 class Interpreter implements Visitor<mixed> {
     public Environment $globals;
     private Environment $environ;
+    private dict<string, num> $locals;
 
     public function __construct(private bool $isPrompt = False) {
         $this->globals = new Environment();
         $this->environ = $this->globals;
         $this->globals->define('clock', new Clock());
+        $this->locals = dict<string, num>[];
     }
 
     public function interpret(Vector<Stmt> $statements): void {
@@ -57,6 +59,7 @@ class Interpreter implements Visitor<mixed> {
             foreach ($stmts as $stmt) {
                 if ($stmt is Expression) {
                     $value = $this->evaluate($stmt->expression);
+                    // TODO: Replace with stringify
                     if (\is_bool($value)) {
                         $value = ($value === true) ? 'true' : 'false';
                     }
@@ -119,12 +122,26 @@ class Interpreter implements Visitor<mixed> {
     }
 
     public function visitVariableExpr(Variable $expr): mixed {
-        return $this->environ->get($expr->name);
+        return $this->lookupVariable($expr->name, $expr); 
     }
+
+    private function lookupVariable(Token $name, Variable $expr): mixed {
+        $depth = idx($this->locals, \spl_object_hash($expr)); 
+        if ($depth === NULL) {
+            return $this->globals->get($name);
+        }
+
+        return $this->environ->getAt($depth, $name->lexeme());
+    } 
 
     public function visitAssignExpr(Assign $expr): mixed {
         $value = $this->evaluate($expr->value);
-        $this->environ->assign($expr->name, $value);
+        $depth = idx($this->locals, \spl_object_hash($expr));
+        if ($depth === NULL) {
+            $this->globals->assign($expr->name, $value);
+        } else {
+            $this->environ->assignAt($depth, $expr->name->lexeme(), $value); 
+        }
         return $value;
     }
 
@@ -246,6 +263,11 @@ class Interpreter implements Visitor<mixed> {
         } finally {
             $this->environ = $previous;
         }
+    }
+
+    public function resolve(Expr $expr, num $scopeDepth): void {
+        $hash = \spl_object_hash($expr);
+        $this->locals[$hash] = $scopeDepth;
     }
 
     private function isTruthy(mixed $obj): bool {
