@@ -113,3 +113,17 @@ class Ret extends Stmt {
         return $visitor->visitRetStmt($this);
     }
 }
+
+class Classy extends Stmt {
+    public Token $name;
+    public Vector<Func> $methods;
+    public function __construct(Token $name, Vector<Func> $methods) {
+        $this->name = $name;
+        $this->methods = $methods;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitClassyStmt($this);
+    }
+}

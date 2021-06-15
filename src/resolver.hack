@@ -120,6 +120,10 @@ class Resolver implements Visitor<void> {
         }
     }
 
+    public function visitClassyStmt(Classy $class): void {
+
+    }
+
     /* -------- *
      * Helpers  * 
      * -------- */

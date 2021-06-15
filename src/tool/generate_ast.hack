@@ -23,7 +23,8 @@ async function main_async(): Awaitable<void> {
       'Lambda   : Vector<Token> $params, Vector<Stmt> $body',
       'Unary    : Token $operator, Expr $right',
       'Variable : Token $name',
-      'Assign   : Token $name, Expr $value'];
+      'Assign   : Token $name, Expr $value'
+      ];
 
     await define_ast_async($outputDir, 'Expr', $typesExpr);
 
@@ -35,7 +36,8 @@ async function main_async(): Awaitable<void> {
         'IfElse     : Expr $condition, Stmt $thenBranch, ?Stmt $elseBranch',
         'WhileLoop  : Expr $condition, Stmt $body',
         'Func   : Token $name, Vector<Token> $params, Vector<Stmt> $body',
-        'Ret    : Token $keyword, ?Expr $value'
+        'Ret    : Token $keyword, ?Expr $value',
+        'Classy   : Token $name, Vector<Func> $methods'
     ];
 
     await define_ast_async($outputDir, 'Stmt', $typesStmt);

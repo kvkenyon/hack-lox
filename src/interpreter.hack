@@ -73,6 +73,10 @@ class Interpreter implements Visitor<mixed> {
         }
     }
 
+    public function visitClassyStmt(Classy $class): void {
+        
+    }
+
     public function visitVarDeclStmt(VarDecl $varDecl): void {
         $value = NULL;
         if ($varDecl->initializer !== NULL) {

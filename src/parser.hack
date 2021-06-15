@@ -79,8 +79,29 @@ class Parser {
             }
         }
 
+        if ($this->match(TokenType::CLAZZ)) {
+            return $this->classDeclaration();
+        }
+
         return $this->expressionStatement();
     }
+
+    private function classDeclaration(): Stmt {
+        $name = $this->consume(TokenType::IDENTIFIER, "Class identifier expected after class keyword.");
+        $this->consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
+        $methods = new Vector<Func>(NULL);
+
+        while (!$this->check(TokenType::RIGHT_BRACE) && !$this->isAtEnd()) {
+            $method = $this->functionStatement('method');
+            if ($method is Func) {
+                $methods->add($method);
+            }
+        }
+
+        $this->consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
+        return new Classy($name, $methods);
+    }
+
 
     private function ifElseStatement(): Stmt {
        $this->consume(TokenType::LEFT_PAREN, "Expected '(' after if.");
