@@ -87,7 +87,7 @@ class Parser {
     }
 
     private function classDeclaration(): Stmt {
-        $name = $this->consume(TokenType::IDENTIFIER, "Class identifier expected after class keyword.");
+        $name = $this->consume(TokenType::IDENTIFIER, 'Class identifier expected after class keyword.');
         $this->consume(TokenType::LEFT_BRACE, "Expect '{' before class body.");
         $methods = new Vector<Func>(NULL);
 
@@ -101,7 +101,6 @@ class Parser {
         $this->consume(TokenType::RIGHT_BRACE, "Expect '}' after class body.");
         return new Classy($name, $methods);
     }
-
 
     private function ifElseStatement(): Stmt {
        $this->consume(TokenType::LEFT_PAREN, "Expected '(' after if.");
@@ -172,11 +171,11 @@ class Parser {
                 if (\count($params) >= 255) {
                     $this->error($this->peek(), 'Too many parameters (< 255).');
                 }
-                $params->add($this->consume(TokenType::IDENTIFIER, 'Expect identifier for ' . $kind . ' parameters.'));    
+                $params->add($this->consume(TokenType::IDENTIFIER, 'Expect identifier for ' . $kind . ' parameters.'));
             } while($this->match(TokenType::COMMA));
         }
         $this->consume(TokenType::RIGHT_PAREN, "Expect ')' after parameter list.");
-        $this->consume(TokenType::LEFT_BRACE, "Expect '{' after " . $kind . "declaration.");
+        $this->consume(TokenType::LEFT_BRACE, "Expect '{' after " . $kind . 'declaration.');
         $body = $this->block();
         return new Func($name, $params, $body);
     }
@@ -213,7 +212,7 @@ class Parser {
         $this->consume(TokenType::SEMICOLON, '; expected after statement.');
         return new Expression($expr);
     }
- 
+
     private function comma(): Expr {
         $expr = $this->ternary();
 
@@ -259,7 +258,7 @@ class Parser {
                 if (\count($params) >= 255) {
                     $this->error($this->peek(), 'Too many parameters (< 255).');
                 }
-                $params->add($this->consume(TokenType::IDENTIFIER, 'Expect identifier for lambda parameters.'));    
+                $params->add($this->consume(TokenType::IDENTIFIER, 'Expect identifier for lambda parameters.'));
             } while($this->match(TokenType::COMMA));
         }
         $this->consume(TokenType::RIGHT_PAREN, "Expect ')' after parameter list.");

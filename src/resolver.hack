@@ -11,7 +11,6 @@ class Resolver implements Visitor<void> {
     private Vector<dict<string, bool>> $scopes;
     private FunctionType $currentFunction;
 
-
     public function __construct(private Interpreter $interpreter) {
         $this->scopes = new Vector<dict<string, bool>>(NULL);
         $this->currentFunction = FunctionType::NONE;
@@ -97,14 +96,14 @@ class Resolver implements Visitor<void> {
         $this->resolveStatement($stmt->thenBranch);
         if ($stmt->elseBranch !== NULL) {
             $this->resolveStatement($stmt->elseBranch);
-        } 
+        }
     }
 
     public function visitWhileLoopStmt(WhileLoop $stmt): void {
         $this->resolveExpression($stmt->condition);
         $this->resolveStatement($stmt->body);
     }
-    
+
     public function visitFuncStmt(Func $stmt): void {
         $this->declare($stmt->name);
         $this->define($stmt->name);
@@ -121,13 +120,14 @@ class Resolver implements Visitor<void> {
     }
 
     public function visitClassyStmt(Classy $class): void {
-
+        $this->declare($class->name);
+        $this->define($class->name);
     }
 
     /* -------- *
-     * Helpers  * 
+     * Helpers  *
      * -------- */
-    
+
     private function declare(Token $name): void {
         $scope = $this->scopes->lastValue();
         if ($scope !== NULL) {
@@ -144,7 +144,7 @@ class Resolver implements Visitor<void> {
             $this->scopes[$this->scopes->count()-1][$name->lexeme()] = true;
         }
     }
-    
+
     public function resolveStatements(Vector<Stmt> $statements): void {
         foreach ($statements as $statement) {
             $this->resolveStatement($statement);
@@ -165,7 +165,7 @@ class Resolver implements Visitor<void> {
         for ($i = $numScopes - 1; $i >= 0; --$i) {
             if (C\contains_key($this->scopes->at($i), $name->lexeme())) {
                 $scopeDepth = $numScopes - 1 - $i;
-                $this->interpreter->resolve($expr, $scopeDepth); 
+                $this->interpreter->resolve($expr, $scopeDepth);
                 return;
             }
         }

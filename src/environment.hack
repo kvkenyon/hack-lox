@@ -22,7 +22,7 @@ class Environment {
     }
 
     public function getAt(num $depth, string $name): mixed {
-       return $this->ancestor($depth)->environ[$name]; 
+       return $this->ancestor($depth)->environ[$name];
     }
 
     public function ancestor(num $depth): Environment {
@@ -30,7 +30,7 @@ class Environment {
         for ($i = 0; $i < $depth; $i++) {
             if ($env->enclosing !== NULL) {
                 $env = $env->enclosing;
-            }         
+            }
         }
         return $env;
     }

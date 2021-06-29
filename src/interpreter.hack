@@ -7,12 +7,12 @@ class RuntimeError extends \Exception {
     }
 }
 
-class ReturnException extends \Exception { 
+class ReturnException extends \Exception {
     <<__Override>>
     public function __construct(public mixed $value) {
         parent::__construct();
     }
-} 
+}
 
 class Clock implements LoxCallable {
     public function arity(): num {
@@ -74,7 +74,9 @@ class Interpreter implements Visitor<mixed> {
     }
 
     public function visitClassyStmt(Classy $class): void {
-        
+       $this->environ->define($class->name->lexeme(), NULL);
+       $klass = new LoxClass($class->name->lexeme());
+       $this->environ->assign($class->name, $klass);
     }
 
     public function visitVarDeclStmt(VarDecl $varDecl): void {
@@ -126,17 +128,17 @@ class Interpreter implements Visitor<mixed> {
     }
 
     public function visitVariableExpr(Variable $expr): mixed {
-        return $this->lookupVariable($expr->name, $expr); 
+        return $this->lookupVariable($expr->name, $expr);
     }
 
     private function lookupVariable(Token $name, Variable $expr): mixed {
-        $depth = idx($this->locals, \spl_object_hash($expr)); 
+        $depth = idx($this->locals, \spl_object_hash($expr));
         if ($depth === NULL) {
             return $this->globals->get($name);
         }
 
         return $this->environ->getAt($depth, $name->lexeme());
-    } 
+    }
 
     public function visitAssignExpr(Assign $expr): mixed {
         $value = $this->evaluate($expr->value);
@@ -144,7 +146,7 @@ class Interpreter implements Visitor<mixed> {
         if ($depth === NULL) {
             $this->globals->assign($expr->name, $value);
         } else {
-            $this->environ->assignAt($depth, $expr->name->lexeme(), $value); 
+            $this->environ->assignAt($depth, $expr->name->lexeme(), $value);
         }
         return $value;
     }

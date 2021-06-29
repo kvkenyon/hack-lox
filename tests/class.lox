@@ -1,0 +1,7 @@
+class MooMooCat {
+    meow() {
+        print "meowmoo";
+    }
+}
+
+print MooMooCat;

@@ -4,7 +4,7 @@ class LoxFunction implements LoxCallable {
     public function __construct(private Func $fun, private Environment $closure) {}
 
     public function arity(): num {
-        return \count($this->fun->params); 
+        return \count($this->fun->params);
     }
 
     public function call(Interpreter $in, Vector<mixed> $params): mixed {
