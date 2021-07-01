@@ -52,6 +52,20 @@ class Call extends Expr {
     }
 }
 
+class Get extends Expr {
+    public Expr $object;
+    public Token $name;
+    public function __construct(Expr $object, Token $name) {
+        $this->object = $object;
+        $this->name = $name;
+    }
+
+    <<__Override>>
+    public function accept<T>(Visitor<T> $visitor): T {
+        return $visitor->visitGetExpr($this);
+    }
+}
+
 class Grouping extends Expr {
     public Expr $expression;
     public function __construct(Expr $expression) {

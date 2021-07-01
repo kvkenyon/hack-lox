@@ -18,6 +18,7 @@ async function main_async(): Awaitable<void> {
       'Ternary  : Expr $a, Expr $b, Expr $c',
       'Binary   : Expr $left, Token $operator, Expr $right',
       'Call     : Expr $calle, Token $paren, Vector<Expr> $arguments',
+      'Get      : Expr $object, Token $name',
       'Grouping : Expr $expression',
       'Literal  : Object $value',
       'Lambda   : Vector<Token> $params, Vector<Stmt> $body',

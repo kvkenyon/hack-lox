@@ -219,6 +219,14 @@ class Interpreter implements Visitor<mixed> {
         throw new RuntimeError($expr->paren, 'Expected function for callee.');
     }
 
+    public function visitGetExpr(Get $expr): mixed {
+        $object = $this->evaluate($expr->object);
+        if ($object is LoxInstance) {
+            return $object->get($expr->name);
+        }
+        throw new RuntimeError($expr->name, 'Only instances have properties.');
+    }
+
     public function visitTernaryExpr(Ternary $ternary): mixed {
         $a = $this->evaluate($ternary->a);
         if ($this->isTruthy($a)) {

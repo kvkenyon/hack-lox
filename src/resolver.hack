@@ -34,6 +34,10 @@ class Resolver implements Visitor<void> {
         }
     }
 
+    public function visitGetExpr(Get $expr): void {
+        $this->resolveExpression($expr->object);
+    }
+
     public function visitGroupingExpr(Grouping $expr): void {
         $this->resolveExpression($expr->expression);
     }
